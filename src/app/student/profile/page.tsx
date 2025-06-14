@@ -28,12 +28,12 @@ export default function ProfilePage() {
 
   const activities: Activity[] = [
     {
-      icon: <BadgeCheck className="w-6 h-6 text-green-600" />,
+      icon: <BadgeCheck className="w-6 h-6 text-success" />,
       title: "Web Dev SIG",
       date: "2/7/25 - 4h",
     },
     {
-      icon: <BadgeCheck className="w-6 h-6 text-green-600" />,
+      icon: <BadgeCheck className="w-6 h-6 text-success" />,
       title: "ML Bootcamp",
       date: "8/7/25 - 6h",
     },
@@ -56,31 +56,31 @@ export default function ProfilePage() {
             {/* Stats Grid: 2x2 on desktop, stacked on mobile */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <StatCard
-                icon={<BadgeCheck className="w-5 h-5 text-green-600" />}
+                icon={<BadgeCheck className="w-5 h-5 text-success" />}
                 title="Events Attended"
                 value="12"
                 subtext="out of 15 Events"
-                color="text-green-600"
+                color="text-success"
               />
               <StatCard
-                icon={<Clock className="w-5 h-5 text-blue-600" />}
+                icon={<Clock className="w-5 h-5 text-info" />}
                 title="Credit Hours"
                 value="20"
                 subtext="10 hours to goal"
-                color="text-blue-600"
+                color="text-info"
               />
               <ProgressStatCard
-                icon={<BookOpen className="w-5 h-5 text-orange-500" />}
+                icon={<BookOpen className="w-5 h-5 text-progress" />}
                 title="Completion Rate"
                 progress={75}
-                color="bg-orange-500"
+                color="bg-progress"
               />
               <StatCard
-                icon={<Star className="w-5 h-5 text-yellow-500" />}
+                icon={<Star className="w-5 h-5 text-warning" />}
                 title="Personal Best"
                 value="10"
                 subtext="hrs earned at Web Dev SIG"
-                color="text-yellow-500"
+                color="text-warning"
               />
             </div>
           </div>

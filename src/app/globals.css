@@ -3,57 +3,43 @@
 
 @layer base {
   :root {
-    /* bg colors */
+    /* Base colors */
     --color-background: #f9fafb;
     --color-card: #ffffff;
     --color-profile: #d4d7db;
     --color-border: #e1e1e1;
-    --color-primary: #3b82f6;
-    --color-primary-dark: #2563eb;
-    --color-secondary: #10b981;
-    --color-secondary-dark: #059669;
-
-    /* text colors */
     --color-text-primary: #000000;
     --color-text-secondary: #6b7280;
     --color-text-muted: #9ca3af;
 
-    /* badge colors */
-    --color-badge-upcoming: #3b82f6;
-    --color-badge-ongoing: #10b981;
-    --color-badge-completed: #6b7280;
-
-    /* button colors */
-    --color-button-rsvp: #3b82f6;
-    --color-button-cancel: #f59e42;
+    /* Profile specific colors */
+    --color-success: #16a34a;        /* green-600 */
+    --color-info: #2563eb;           /* blue-600 */
+    --color-warning: #eab308;        /* yellow-500 */
+    --color-progress: #f97316;        /* orange-500 */
+    --color-accent: #a855f7;         /* purple-500 */
+    
+    /* Button states */
     --color-button-disabled: #e5e7eb;
   }
 
   .dark {
-    /* bg colors */
     --color-background: #0f172a;
     --color-card: #030c20;
     --color-profile: #253550;
     --color-border: #5f5e64;
-    --color-tabs: #0F172A;
-    --color-primary: #60a5fa;
-    --color-primary-dark: #3b82f6;
-    --color-secondary: #34d399;
-    --color-secondary-dark: #10b981;
-
-    /* text colors */
     --color-text-primary: #ffffff;
     --color-text-secondary: #e5e7eb;
     --color-text-muted: #9ca3af;
 
-    /* badge colors */
-    --color-badge-upcoming: #60a5fa;
-    --color-badge-ongoing: #34d399;
-    --color-badge-completed: #9ca3af;
-
-    /* button colors */
-    --color-button-rsvp: #2563eb;
-    --color-button-cancel: #fbbf24;
+    /* Profile specific colors */
+    --color-success: #22c55e;
+    --color-info: #3b82f6;
+    --color-warning: #facc15;
+    --color-progress: #fb923c;
+    --color-accent: #c084fc;
+    
+    /* Button states */
     --color-button-disabled: #374151;
   }
 
@@ -66,11 +52,9 @@
 }
 
 @layer utilities {
+  /* Background utilities */
   .bg-background {
     background-color: var(--color-background);
-  }
-  .bg-background-dark {
-    background-color: var(--color-background-tabs);
   }
   .bg-card {
     background-color: var(--color-card);
@@ -78,18 +62,14 @@
   .bg-profile {
     background-color: var(--color-profile);
   }
-  .bg-primary {
-    background-color: var(--color-primary);
+  .bg-disabled {
+    background-color: var(--color-button-disabled);
   }
-  .bg-primary-dark {
-    background-color: var(--color-primary-dark);
+  .bg-progress {
+    background-color: var(--color-progress);
   }
-  .bg-secondary {
-    background-color: var(--color-secondary);
-  }
-  .bg-secondary-dark {
-    background-color: var(--color-secondary-dark);
-  }
+
+  /* Text utilities */
   .text-primary {
     color: var(--color-text-primary);
   }
@@ -99,13 +79,21 @@
   .text-muted {
     color: var(--color-text-muted);
   }
+  .text-success {
+    color: var(--color-success);
+  }
+  .text-info {
+    color: var(--color-info);
+  }
+  .text-warning {
+    color: var(--color-warning);
+  }
+  .text-progress {
+    color: var(--color-progress);
+  }
+
+  /* Border utilities */
   .border-card {
     border-color: var(--color-border);
-  }
-  .bg-button-rsvp {
-    background-color: var(--color-button-rsvp);
-  }
-  .bg-button-disabled {
-    background-color: var(--color-button-disabled);
   }
 }
