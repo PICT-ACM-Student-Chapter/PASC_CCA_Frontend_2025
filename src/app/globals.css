@@ -1,72 +1,99 @@
+/* globals.css */
 @import "tailwindcss";
 
 @layer base {
   :root {
-    /* bg colors */
+    /* Base colors */
     --color-background: #f9fafb;
     --color-card: #ffffff;
     --color-profile: #d4d7db;
     --color-border: #e1e1e1;
-
-    /* text colors */
     --color-text-primary: #000000;
-    --color-text-secondary: #897d7d;
+    --color-text-secondary: #6b7280;
+    --color-text-muted: #9ca3af;
 
-    /* buttons colors */
-    --color-button-rsvp: #3579b1;
+    /* Profile specific colors */
+    --color-success: #16a34a;        /* green-600 */
+    --color-info: #2563eb;           /* blue-600 */
+    --color-warning: #eab308;        /* yellow-500 */
+    --color-progress: #f97316;        /* orange-500 */
+    --color-accent: #a855f7;         /* purple-500 */
+    
+    /* Button states */
     --color-button-disabled: #e5e7eb;
   }
 
   .dark {
-    /* bg colors */
     --color-background: #0f172a;
     --color-card: #030c20;
     --color-profile: #253550;
     --color-border: #5f5e64;
-
-    /* text colors */
     --color-text-primary: #ffffff;
-    --color-text-secondary: #897d7d;
+    --color-text-secondary: #e5e7eb;
+    --color-text-muted: #9ca3af;
 
-    /* buttons */
-    --color-button-rsvp: #004177;
-    --color-button-disabled: #1e293b;
+    /* Profile specific colors */
+    --color-success: #22c55e;
+    --color-info: #3b82f6;
+    --color-warning: #facc15;
+    --color-progress: #fb923c;
+    --color-accent: #c084fc;
+    
+    /* Button states */
+    --color-button-disabled: #374151;
   }
 
   body {
     background-color: var(--color-background);
-    color: var(--color-foreground);
+    color: var(--color-text-primary);
     transition: background-color 0.3s, color 0.3s;
     font-family: Arial, Helvetica, sans-serif;
   }
 }
 
 @layer utilities {
+  /* Background utilities */
   .bg-background {
     background-color: var(--color-background);
   }
-
   .bg-card {
     background-color: var(--color-card);
   }
   .bg-profile {
     background-color: var(--color-profile);
   }
+  .bg-disabled {
+    background-color: var(--color-button-disabled);
+  }
+  .bg-progress {
+    background-color: var(--color-progress);
+  }
+
+  /* Text utilities */
   .text-primary {
     color: var(--color-text-primary);
   }
   .text-secondary {
     color: var(--color-text-secondary);
   }
+  .text-muted {
+    color: var(--color-text-muted);
+  }
+  .text-success {
+    color: var(--color-success);
+  }
+  .text-info {
+    color: var(--color-info);
+  }
+  .text-warning {
+    color: var(--color-warning);
+  }
+  .text-progress {
+    color: var(--color-progress);
+  }
+
+  /* Border utilities */
   .border-card {
     border-color: var(--color-border);
-  }
-
-  .bg-button-rsvp {
-    background-color: var(--color-button-rsvp);
-  }
-
-  .bg-button-disabled {
-    background-color: var(--color-button-disabled);
   }
 }

@@ -8,8 +8,8 @@ import ThemeSwitcher from "./ThemeSwitcher";
 
 const Navbar = () => {
   return (
-    <nav className="w-full">
-      <div className="flex justify-between mx-auto shadow-xl  px-5 py-2">
+    <nav className="w-full top-0">
+      <div className="flex justify-between mx-auto shadow-md  px-5 py-2">
         <div className="flex items-center">
           <Image src="/logo.png" width={120} height={80} alt="logo" priority />
         </div>
