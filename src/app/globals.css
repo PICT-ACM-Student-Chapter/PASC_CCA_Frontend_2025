@@ -1,3 +1,4 @@
+/* globals.css */
 @import "tailwindcss";
 
 @layer base {
@@ -32,13 +33,24 @@
     --color-card: #ffffff;
     --color-profile: #d4d7db;
     --color-border: #e1e1e1;
+    --color-primary: #3b82f6;
+    --color-primary-dark: #2563eb;
+    --color-secondary: #10b981;
+    --color-secondary-dark: #059669;
 
     /* text colors */
     --color-text-primary: #000000;
-    --color-text-secondary: #897d7d;
+    --color-text-secondary: #6b7280;
+    --color-text-muted: #9ca3af;
 
-    /* buttons colors */
-    --color-button-rsvp: #3579b1;
+    /* badge colors */
+    --color-badge-upcoming: #3b82f6;
+    --color-badge-ongoing: #10b981;
+    --color-badge-completed: #6b7280;
+
+    /* button colors */
+    --color-button-rsvp: #3b82f6;
+    --color-button-cancel: #f59e42;
     --color-button-disabled: #e5e7eb;
   }
 
@@ -72,19 +84,31 @@
     --color-card: #030c20;
     --color-profile: #253550;
     --color-border: #5f5e64;
+    --color-tabs: #0F172A;
+    --color-primary: #60a5fa;
+    --color-primary-dark: #3b82f6;
+    --color-secondary: #34d399;
+    --color-secondary-dark: #10b981;
 
     /* text colors */
     --color-text-primary: #ffffff;
-    --color-text-secondary: #897d7d;
+    --color-text-secondary: #e5e7eb;
+    --color-text-muted: #9ca3af;
 
-    /* buttons */
-    --color-button-rsvp: #004177;
-    --color-button-disabled: #1e293b;
+    /* badge colors */
+    --color-badge-upcoming: #60a5fa;
+    --color-badge-ongoing: #34d399;
+    --color-badge-completed: #9ca3af;
+
+    /* button colors */
+    --color-button-rsvp: #2563eb;
+    --color-button-cancel: #fbbf24;
+    --color-button-disabled: #374151;
   }
 
   body {
     background-color: var(--color-background);
-    color: var(--color-foreground);
+    color: var(--color-text-primary);
     transition: background-color 0.3s, color 0.3s;
     font-family: Arial, Helvetica, sans-serif;
   }
@@ -94,12 +118,26 @@
   .bg-background {
     background-color: var(--color-background);
   }
-
+  .bg-background-dark {
+    background-color: var(--color-background-tabs);
+  }
   .bg-card {
     background-color: var(--color-card);
   }
   .bg-profile {
     background-color: var(--color-profile);
+  }
+  .bg-primary {
+    background-color: var(--color-primary);
+  }
+  .bg-primary-dark {
+    background-color: var(--color-primary-dark);
+  }
+  .bg-secondary {
+    background-color: var(--color-secondary);
+  }
+  .bg-secondary-dark {
+    background-color: var(--color-secondary-dark);
   }
   .text-primary {
     color: var(--color-text-primary);
@@ -107,16 +145,16 @@
   .text-secondary {
     color: var(--color-text-secondary);
   }
+  .text-muted {
+    color: var(--color-text-muted);
+  }
   .border-card {
     border-color: var(--color-border);
   }
-
   .bg-button-rsvp {
     background-color: var(--color-button-rsvp);
   }
-
   .bg-button-disabled {
     background-color: var(--color-button-disabled);
   }
 }
-
