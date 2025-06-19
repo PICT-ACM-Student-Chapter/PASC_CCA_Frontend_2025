@@ -7,34 +7,42 @@
     --color-card: #ffffff;
     --color-profile: #d4d7db;
     --color-border: #e1e1e1;
-    --color-faint-blue-feature: #f5faff; /* Renamed from --color-faint-blue to avoid conflict */
-    --color-pure-white-feature: #ffffff; /* Renamed from --color-pure-white to avoid conflict */
+    --color-faint-blue-feature: #f5faff;
+    --color-pure-white-feature: #ffffff;
+    --color-slider-light: #3b82f6;
 
     /* text colors */
     --color-text-primary: #000000;
     --color-text-secondary: #6b7280;
     --color-text-muted: #9ca3af;
     --color-foreground: #000000;
-    --color-blue-500: #3b82f6; /* Blue for text and button background */
-    --color-gray-500: #6b7280; /* Gray for eye icon in light mode */
-    --color-gray-400: #9ca3af; /* Gray for eye icon in dark mode */
+    --color-blue-500: #3b82f6;
+    --color-gray-500: #6b7280;
+    --color-gray-400: #9ca3af;
 
     /* Profile specific colors */
-    --color-success: #16a34a;        /* green-600 */
-    --color-info: #2563eb;           /* blue-600 */
-    --color-warning: #eab308;        /* yellow-500 */
-    --color-progress: #f97316;        /* orange-500 */
-    --color-accent: #a855f7;         /* purple-500 */
+    --color-success: #16a34a;
+    --color-info: #2563eb;
+    --color-warning: #eab308;
+    --color-progress: #f97316;
+    --color-accent: #a855f7;
     
     /* Button states */
     --color-button-disabled: #e5e7eb;
-    --color-blue-500-bg: #3b82f6; /* Button enabled background */
-    --color-blue-600-bg: #2563eb; /* Button hover background */
-    --color-blue-200-bg: #bfdbfe; /* Button disabled background */
+    --color-blue-500-bg: #3b82f6;
+    --color-blue-600-bg: #2563eb;
+    --color-blue-200-bg: #bfdbfe;
 
     /* illustration background colors */
     --color-blue-light: #e6f0fa;
     --color-blue-dark: #1e3a8a;
+
+    /* New variable for button hover */
+    --color-button-hover: #1d4ed8;
+
+    /* Box shadow variables */
+    --shadow-light: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-dark: 0 4px 6px rgba(0, 0, 0, 0.3);
   }
 
   .dark {
@@ -42,8 +50,8 @@
     --color-card: #030c20;
     --color-profile: #253550;
     --color-border: #5f5e64;
-    --color-faint-blue-feature: #030c20; /* Renamed from --color-faint-blue to avoid conflict */
-    --color-pure-white-feature: #1f2937; /* Renamed from --color-pure-white to avoid conflict */
+    --color-faint-blue-feature: #030c20;
+    --color-pure-white-feature: #1f2937;
 
     /* text colors */
     --color-text-primary: #ffffff;
@@ -59,14 +67,21 @@
     
     /* Button states */
     --color-button-disabled: #374151;
-    --color-button-rsvp: #004177; /* Retained from feature branch */
-    --color-blue-500-bg: #3b82f6; /* Button enabled background */
-    --color-blue-600-bg: #2563eb; /* Button hover background */
-    --color-blue-200-bg: #bfdbfe; /* Button disabled background */
+    --color-button-rsvp: #004177;
+    --color-blue-500-bg: #3b82f6;
+    --color-blue-600-bg: #2563eb;
+    --color-blue-200-bg: #bfdbfe;
 
     /* illustration background colors */
-    --color-blue-light: #1f2937; /* Retained from feature branch */
-    --color-blue-dark: #e6f0fa; /* Retained from feature branch */
+    --color-blue-light: #1f2937;
+    --color-blue-dark: #e6f0fa;
+
+    /* New variable for button hover */
+    --color-button-hover: #1d4ed8;
+
+    /* Box shadow variables */
+    --shadow-light: 0 4px 6px rgba(0, 0, 0, 0.3);
+    --shadow-dark: 0 4px 6px rgba(0, 0, 0, 0.5);
   }
 
   body {
@@ -85,15 +100,12 @@
   .bg-card {
     background-color: var(--color-card);
   }
-
   .bg-faint-blue {
-    background-color: var(--color-faint-blue-feature); /* Updated to use renamed variable */
+    background-color: var(--color-faint-blue-feature);
   }
-
   .bg-pure-white {
-    background-color: var(--color-pure-white-feature); /* Updated to use renamed variable */
+    background-color: var(--color-pure-white-feature);
   }
-
   .bg-profile {
     background-color: var(--color-profile);
   }
@@ -165,14 +177,22 @@
     width: 100%;
     padding: 0.75rem;
     border-radius: 0.5rem;
-    background-color: var(--color-button-rsvp);
+    background-color: #2563eb;
     color: white;
     font-weight: 600;
     transition: all 0.3s;
+    box-shadow: var(--shadow-light);
   }
 
   .auth-button:hover {
-    background-color: #1d4ed8;
+    background-color: var(--color-button-hover);
+    box-shadow: var(--shadow-dark);
+  }
+
+  .auth-button:disabled {
+    background-color: var(--color-button-disabled);
+    cursor: not-allowed;
+    box-shadow: none;
   }
 
   .link-text {
@@ -195,5 +215,21 @@
 
   [style*="--hover-color"]:hover {
     color: var(--hover-color) !important;
+  }
+
+  /* Container shadow */
+  .container-shadow {
+    box-shadow: var(--shadow-light);
+  }
+  .dark .container-shadow {
+    box-shadow: var(--shadow-dark);
+  }
+
+  /* Added missing utility classes for consistency */
+  .bg-faint-blue-feature {
+    background-color: var(--color-faint-blue-feature);
+  }
+  .bg-pure-white-feature {
+    background-color: var(--color-pure-white-feature);
   }
 }

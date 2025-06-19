@@ -29,7 +29,7 @@ export default function Login() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="flex flex-col sm:flex-row w-full max-w-screen-xl min-h-[600px] rounded-2xl shadow-2xl overflow-hidden"
+        className="flex flex-col sm:flex-row w-full max-w-screen-xl min-h-[600px] rounded-2xl container-shadow overflow-hidden"
       >
         {/* Form Section */}
         <div className="w-full sm:w-1/2 p-4 sm:p-6 lg:p-10 flex flex-col justify-center bg-faint-blue-feature dark:bg-card">
@@ -75,11 +75,7 @@ export default function Login() {
               </div>
               <button
                 disabled={!isFormFilled}
-                className={`auth-button w-full py-2 rounded-lg text-white font-medium transition-colors duration-200 text-sm sm:text-base ${
-                  isFormFilled
-                    ? 'bg-blue-500-bg hover:bg-blue-600-bg'
-                    : 'bg-blue-200-bg cursor-not-allowed'
-                }`}
+                className="auth-button w-full py-2 rounded-lg text-white font-medium text-sm sm:text-base"
               >
                 Login
               </button>
