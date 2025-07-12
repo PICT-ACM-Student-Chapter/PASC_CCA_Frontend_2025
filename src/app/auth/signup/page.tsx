@@ -36,49 +36,58 @@ export default function Signup() {
     (role === "admin" ||
       (department.trim() !== "" && passoutYear.trim() !== "")) &&
     (role !== "student" || (year.trim() !== "" && rollNumber.trim() !== ""));
+const handleSignup = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setError(null);
 
-  const handleSignup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
+  if (password !== confirmPassword) {
+    setError("Passwords do not match");
+    return;
+  }
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
+  setLoading(true);
 
-    setLoading(true);
+  const endpoint =
+    role === "admin"
+      ? "http://localhost:4000/api/auth/admin/register"
+      : "http://localhost:4000/api/auth/user/register";
 
-    const endpoint =
-      role === "admin"
-        ? "http://localhost:3000/api/auth/admin/register"
-        : "http://localhost:3000/api/auth/user/register";
-
-    // ✅ Payload formatted as per your requirement
-    const payload = {
-      name: `${firstName} ${surname}`,
-      email: email,
-      password: password,
-    };
-
-    try {
-      const res = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const data = await res.json();
-
-      if (data.success) {
-        window.location.href = "/auth/login";
-      } else {
-        setError(data.error || "Signup failed");
-      }
-    } catch (err) {
-      setError("Network error");
-    } finally {
-      setLoading(false);
-    }
+  // Build payload based on role
+  let payload: any = {
+    name: `${firstName} ${surname}`,
+    email: email,
+    password: password,
   };
+
+  if (role === "student") {
+    payload = {
+      ...payload,
+      department: department,
+      year: Number(year),
+      passoutYear: Number(passoutYear),
+      roll: Number(rollNumber),
+    };
+  }
+
+  try {
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      window.location.href = "/auth/login";
+    } else {
+      setError(data.error || "Signup failed");
+    }
+  } catch (err) {
+    setError("Network error");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="flex-1 flex items-center justify-center p-4 sm:p-6 -mt-6">

@@ -33,8 +33,8 @@ export default function Login() {
     // Adjust the endpoint as per your backend routes
     const endpoint =
       role === "admin"
-        ? "http://localhost:3000/api/auth/admin/login"
-        : "http://localhost:3000/api/auth/user/login";
+        ? "http://localhost:4000/api/auth/admin/login"
+        : "http://localhost:4000/api/auth/user/login";
 
     try {
       const res = await fetch(endpoint, {
@@ -54,6 +54,7 @@ export default function Login() {
         setError(data.error || "Login failed");
       }
     } catch (err) {
+      console.log(err);
       setError("Network error");
     } finally {
       setLoading(false);
