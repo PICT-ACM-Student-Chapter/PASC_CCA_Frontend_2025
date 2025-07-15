@@ -6,8 +6,13 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { RoleToggle } from "@/components/auth/RoleToggle";
 import { Eye, EyeOff } from "lucide-react";
+import { useAuthStore } from "@/lib/store";
+import { Department, IUser } from "@/types/auth";
+import { IAdmin } from "@/types/auth";
+import axios from "axios";
 
 export default function Signup() {
+
   const [role, setRole] = useState("student");
   const [firstName, setFirstName] = useState("");
   const [surname, setSurname] = useState("");
@@ -23,6 +28,9 @@ export default function Signup() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const { setAuth } = useAuthStore();
+
+    
   const handleRoleChange = (selectedRole: string) => {
     setRole(selectedRole);
   };
@@ -33,61 +41,69 @@ export default function Signup() {
     email.trim() !== "" &&
     password.trim() !== "" &&
     confirmPassword.trim() !== "" &&
-    (role === "admin" ||
-      (department.trim() !== "" && passoutYear.trim() !== "")) &&
+    (role === "admin" || (department.trim() !== "" && passoutYear.trim() !== "")) &&
     (role !== "student" || (year.trim() !== "" && rollNumber.trim() !== ""));
-const handleSignup = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setError(null);
 
-  if (password !== confirmPassword) {
-    setError("Passwords do not match");
-    return;
-  }
 
-  setLoading(true);
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
 
-  const endpoint =
-    role === "admin"
-      ? "http://localhost:4000/api/auth/admin/register"
-      : "http://localhost:4000/api/auth/user/register";
-
-  // Build payload based on role
-  let payload: any = {
-    name: `${firstName} ${surname}`,
-    email: email,
-    password: password,
-  };
-
-  if (role === "student") {
-    payload = {
-      ...payload,
-      department: department,
-      year: Number(year),
-      passoutYear: Number(passoutYear),
-      roll: Number(rollNumber),
-    };
-  }
-
-  try {
-    const res = await fetch(endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    const data = await res.json();
-
-    if (data.success) {
-      window.location.href = "/auth/login";
-    } else {
-      setError(data.error || "Signup failed");
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
     }
-  } catch (err) {
-    setError("Network error");
-  } finally {
-    setLoading(false);
-  }
-};
+
+    setLoading(true);
+
+    const endpoint =
+      role === "admin"
+        ? "http://localhost:4000/api/auth/admin/register"
+        : "http://localhost:4000/api/auth/user/register";
+
+    try {
+      let payload;
+      if (role === "student") {
+        payload = {
+          name: `${firstName} ${surname}`,
+          email: email,
+          password: password,
+          department: department as Department,
+          year: Number(year),
+          passoutYear: Number(passoutYear),
+          roll: Number(rollNumber),
+          hours: 0,
+        };
+      } else {
+        payload = {
+          name: `${firstName} ${surname}`,
+          email: email,
+          password: password,
+        };
+      }
+      const res = await axios.post(endpoint, payload);
+      const data = res.data;
+      const authResponse = data.data;
+      if (data.success) {
+        setAuth({
+          user: role === "student" ? authResponse.user : undefined,
+          admin: role === "admin" ? authResponse.admin : undefined,
+          role: role as "student" | "admin",
+        });
+        if (authResponse.token) {
+          localStorage.setItem("token", authResponse.token);
+        }
+        window.location.href = "/auth/login";
+      } else {
+        setError(data.error || "Signup failed");
+      }
+    } catch (err: any) {
+      console.log(err.response?.data);
+      setError(err.response?.data?.error || "Signup failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="flex-1 flex items-center justify-center p-4 sm:p-6 -mt-6">
@@ -269,3 +285,4 @@ const handleSignup = async (e: React.FormEvent) => {
     </div>
   );
 }
+

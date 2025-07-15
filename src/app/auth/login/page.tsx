@@ -1,11 +1,14 @@
 "use client";
-
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { RoleToggle } from "@/components/auth/RoleToggle";
 import { Eye, EyeOff } from "lucide-react";
+import axios from "axios";
+import { useAuthStore } from "@/lib/store";
+
+
 
 export default function Login() {
   const [role, setRole] = useState<string>("student");
@@ -14,7 +17,7 @@ export default function Login() {
   const [password, setPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-
+  const { setAuth } = useAuthStore();
   const handleRoleChange = (selectedRole: string): void => {
     setRole(selectedRole);
   };
@@ -36,25 +39,21 @@ export default function Login() {
         : "http://localhost:4000/api/auth/user/login";
 
     try {
-      const res = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+      const res = await axios.post(endpoint, { email, password });
+      const data = res.data;
+      const authResponse = data.data;
+      setAuth({
+        user: role === "student" ? authResponse.user : undefined,
+        admin: role === "admin" ? authResponse.admin : undefined,
+        role: role as "student" | "admin",
       });
-      const data = await res.json();
+      localStorage.setItem("token", authResponse.token);
+      window.location.href =
+        role === "admin" ? "/admin/dashboard" : "/student/events";
 
-      if (data.success) {
-        // Save token (localStorage/sessionStorage/cookie)
-        localStorage.setItem("token", data.data.token);
-        // Redirect user (example: to dashboard)
-        window.location.href =
-          role === "admin" ? "/admin/dashboard" : "/student/events";
-      } else {
-        setError(data.error || "Login failed");
-      }
-    } catch (err) {
-      console.log(err);
-      setError("Network error");
+    } catch (err: any) {
+      console.log(err.response.data);
+      setError(err.response.data.error || "Login failed");
     } finally {
       setLoading(false);
     }
