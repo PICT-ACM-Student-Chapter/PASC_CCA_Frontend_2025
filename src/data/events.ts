@@ -2,10 +2,10 @@ import { Event } from "@/types/events";
 export const EVENTS: Event[] = [
   {
     id: 1,
-    title: "Web Dev SIG",
+    title: "Web",
     status: "Upcoming",
     description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation. Ut enim ad minim veniam, quis nostrud exercitation.",
+      "mc b c",
     duration: "3 days",
     location: "Auditorium",
     startDate: "15/7/25",
@@ -31,20 +31,20 @@ export const EVENTS: Event[] = [
     prerequisites: "Basic understanding of programming concepts",
     contact: "8421318457 / 7896541230",
   },
-  {
-    id: 3,
+  // {
+  //   id: 3,
 
-    title: "ML SIG",
-    status: "Ongoing",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation. Ut enim ad minim veniam, quis nostrud exercitation.",
-    duration: "3 days",
-    location: "Auditorium",
-    startDate: "15/7/25",
-    endDate: "18/7/25",
-    creditHours: "15 hrs credit",
-    rsvpStatus: "rsvped",
-    prerequisites: "Basic understanding of programming concepts",
-    contact: "8421318457 / 7896541230",
-  },
+  //   title: "ML SIG",
+  //   status: "Ongoing",
+  //   description:
+  //     "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation. Ut enim ad minim veniam, quis nostrud exercitation.",
+  //   duration: "3 days",
+  //   location: "Auditorium",
+  //   startDate: "15/7/25",
+  //   endDate: "18/7/25",
+  //   creditHours: "15 hrs credit",
+  //   rsvpStatus: "rsvped",
+  //   prerequisites: "Basic understanding of programming concepts",
+  //   contact: "8421318457 / 7896541230",
+  // },
 ];
