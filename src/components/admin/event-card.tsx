@@ -2,8 +2,10 @@ import { Event } from "@/types/events";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 export const EventCard = (event: Event) => {
+  const router = useRouter();
   const getStatusBadge = (status: Event["status"]) => {
     const variants = {
       Upcoming: "bg-blue-100 text-blue-800 hover:bg-blue-100",
@@ -32,7 +34,7 @@ export const EventCard = (event: Event) => {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" className="text-base">
+            <Button variant="outline" size="sm" className="text-base" onClick={() => router.push(`/admin/editEvent/${event.id}`)}>
               Edit
             </Button>
             <Button variant="outline" size="sm" className="text-base">
