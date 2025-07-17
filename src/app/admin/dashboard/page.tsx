@@ -6,19 +6,27 @@ import { Card, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, Users, Plus } from "lucide-react";
-import { EVENTS } from "@/data/events";
 import { StatsCard } from "@/components/admin/stats-card";
 import { EventsList } from "@/components/admin/event-list";
+import {  useFetchEventsForAdmin } from "@/hooks/events";
+import { Event, EventStatus } from "@/types/events";
 
 const AdminDashboard = () => {
-  const [activeTab, setActiveTab] = useState("All Events");
+  const [activeTab, setActiveTab] = useState("ALL EVENTS");
   const router = useRouter();
 
-  const totalEvents = EVENTS.length;
-  const activeEvents = EVENTS.filter(
-    (event) => event.status === "Ongoing" || event.status === "Upcoming"
+  // Use the hook to fetch events
+  const { events, loading, error } = useFetchEventsForAdmin();
+
+  // Calculate stats from fetched events
+  const totalEvents = events.length;
+  const activeEvents = events.filter(
+    (event) => event.status === "ONGOING" || event.status === "UPCOMING"
   ).length;
   const totalStudents = 1250;
+
+  if (loading) return <div>Loading events...</div>;
+  if (error) return <div className="text-red-500">{error}</div>;
 
   return (
     <div className="min-h-screen p-6">
@@ -55,7 +63,7 @@ const AdminDashboard = () => {
           <CardHeader>
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="grid w-full grid-cols-4 bg-gray-200 rounded-md text-lg">
-                {["All Events", "Upcoming", "Ongoing", "Completed"].map((tab) => (
+                {["ALL EVENTS", "UPCOMING", "ONGOING", "COMPLETED"].map((tab) => (
                   <TabsTrigger
                     key={tab}
                     value={tab}
@@ -66,9 +74,9 @@ const AdminDashboard = () => {
                 ))}
               </TabsList>
 
-              {["All Events", "Upcoming", "Ongoing", "Completed"].map((status) => (
+              {["ALL EVENTS", "UPCOMING", "ONGOING", "COMPLETED"].map((status) => (
                 <TabsContent key={status} value={status} className="mt-6">
-                  <EventsList events={EVENTS} filterStatus={status} />
+                  <EventsList events={events} filterStatus={status as EventStatus} />
                 </TabsContent>
               ))}
             </Tabs>
