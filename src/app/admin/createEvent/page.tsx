@@ -1,5 +1,4 @@
 'use client';
-
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import React, { useState } from 'react';
@@ -10,6 +9,7 @@ import {
   CheckCircle,
   AlertCircle
 } from 'lucide-react';
+import { head } from "framer-motion/client";
 
 interface FormData {
   title: string;
@@ -19,12 +19,11 @@ interface FormData {
   location: string;
   credits: number;
   capacity: number;
-  prerequisite: string;
+  prerequisite: string; // <-- add this
 }
 
-const CreateEventPage: React.FC = () => {
-  const router = useRouter();
-
+const Page: React.FC = () => {
+  const router = useRouter(); 
   const [formData, setFormData] = useState<FormData>({
     title: '',
     description: '',
@@ -33,7 +32,7 @@ const CreateEventPage: React.FC = () => {
     location: '',
     credits: 0,
     capacity: 0,
-    prerequisite: '',
+    prerequisite: '', // <-- add this
   });
 
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -58,56 +57,73 @@ const CreateEventPage: React.FC = () => {
     const end = new Date(endDate);
     const timeDiff = end.getTime() - start.getTime();
     return Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1;
-  };
-
-  const handleSubmit = async () => {
+  };const handleSubmit = async () => {
+    // Check for any missing fields
     const { title, description, startDate, endDate, location, credits, capacity } = formData;
-
-    if (!title.trim() || !description.trim() || !startDate || !endDate || !location.trim() || credits <= 0 || capacity <= 0) {
+    if (
+      !title.trim() ||
+      !description.trim() ||
+      !startDate ||
+      !endDate ||
+      !location.trim() ||
+      credits <= 0 ||
+      capacity <= 0
+    ) {
       setSubmitStatus('error');
       alert('Please fill in all the fields correctly before submitting.');
       return;
     }
-
+  
     setIsSubmitting(true);
     setSubmitStatus(null);
-
+  
     try {
       const numDays = calculateNumDays(startDate, endDate);
+  
       const payload = {
         ...formData,
-        numDays,
         startDate: new Date(startDate).toISOString(),
         endDate: new Date(endDate).toISOString(),
+        numDays
       };
+      
+      console.log("📦 Payload being sent to backend:", payload); 
+  
+      try{
+        const res = await axios.post('http://localhost:4000/api/events' , {
+          headers: { 'Content-Type': 'application/json' , 'Authorization': `Bearer ${localStorage.getItem('token')}`},
+          body: JSON.stringify(payload)
+        });
+      }catch(err:any)
+      {
+        console.log(err.response.data);
+      }
 
-      const token = localStorage.getItem('token');
+  
 
-      const res = await axios.post(
-        'http://localhost:4000/api/events',
-        payload,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
-        }
-      );
-
-      console.log("✅ Event created:", res.data);
+  
       setSubmitStatus('success');
-
-      setTimeout(() => {
-        router.push('/admin/dashboard');
-      }, 1500);
-    } catch (err: any) {
-      console.error('Error creating event:', err);
+  
+      setFormData({
+        title: '',
+        description: '',
+        startDate: '',
+        endDate: '',
+        location: '',
+        credits: 0,
+        capacity: 0,
+        prerequisite: '', // <-- add this
+      });
+  
+      router.push('/admin/dashboard');
+    } catch (err) {
+      console.error('Error:', err);
       setSubmitStatus('error');
     } finally {
       setIsSubmitting(false);
     }
   };
-
+  
   return (
     <div className={`min-h-screen p-6 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-black'}`}>
       <div className="max-w-4xl mx-auto space-y-6">
@@ -126,6 +142,7 @@ const CreateEventPage: React.FC = () => {
                     ? 'bg-gray-700 text-yellow-400 hover:bg-gray-600'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
+                title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
               >
                 {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
               </button>
@@ -145,21 +162,82 @@ const CreateEventPage: React.FC = () => {
           }}
           className={`rounded-lg p-6 shadow space-y-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
         >
-          <input name="title" value={formData.title} onChange={handleInputChange} placeholder="Event Title" className="w-full p-2 border rounded" required />
-          <textarea name="description" value={formData.description} onChange={handleInputChange} placeholder="Description" className="w-full p-2 border rounded" required />
-          <input type="date" name="startDate" value={formData.startDate} onChange={handleInputChange} className="w-full p-2 border rounded" required />
-          <input type="date" name="endDate" value={formData.endDate} onChange={handleInputChange} className="w-full p-2 border rounded" required />
-          <input name="location" value={formData.location} onChange={handleInputChange} placeholder="Location" className="w-full p-2 border rounded" required />
-          <input type="number" name="credits" value={formData.credits} onChange={handleInputChange} placeholder="Credits" className="w-full p-2 border rounded" required />
-          <input type="number" name="capacity" value={formData.capacity} onChange={handleInputChange} placeholder="Capacity" className="w-full p-2 border rounded" required />
-          <textarea name="prerequisite" value={formData.prerequisite} onChange={handleInputChange} placeholder="Prerequisites (optional)" className="w-full p-2 border rounded" />
+          <input
+            type="text"
+            name="title"
+            value={formData.title}
+            onChange={handleInputChange}
+            placeholder="Event Title"
+            className="w-full p-2 border rounded"
+            required
+          />
+          <textarea
+            name="description"
+            value={formData.description}
+            onChange={handleInputChange}
+            placeholder="Description"
+            className="w-full p-2 border rounded"
+            required
+          />
+          <input
+            type="date"
+            name="startDate"
+            value={formData.startDate}
+            onChange={handleInputChange}
+            className="w-full p-2 border rounded"
+            required
+          />
+          <input
+            type="date"
+            name="endDate"
+            value={formData.endDate}
+            onChange={handleInputChange}
+            className="w-full p-2 border rounded"
+            required
+          />
+          <input
+            type="text"
+            name="location"
+            value={formData.location}
+            onChange={handleInputChange}
+            placeholder="Location"
+            className="w-full p-2 border rounded"
+            required
+          />
+          <input
+            type="number"
+            name="credits"
+            value={formData.credits}
+            onChange={handleInputChange}
+            placeholder="Credits"
+            className="w-full p-2 border rounded"
+            required
+          />
+          <input
+            type="number"
+            name="capacity"
+            value={formData.capacity}
+            onChange={handleInputChange}
+            placeholder="Capacity"
+            className="w-full p-2 border rounded"
+            required
+          />
+          <textarea
+            name="prerequisite"
+            value={formData.prerequisite}
+            onChange={handleInputChange}
+            placeholder="Prerequisites"
+            className="w-full p-2 border rounded"
+          />
 
+          {/* Duration */}
           {formData.startDate && formData.endDate && (
             <p className="text-sm text-blue-600">
               Duration: {calculateNumDays(formData.startDate, formData.endDate)} day(s)
             </p>
           )}
 
+          {/* Status Messages */}
           {submitStatus === 'success' && (
             <div className="flex items-center gap-2 text-green-600">
               <CheckCircle className="w-4 h-4" />
@@ -186,4 +264,4 @@ const CreateEventPage: React.FC = () => {
   );
 };
 
-export default CreateEventPage;
+export default Page;

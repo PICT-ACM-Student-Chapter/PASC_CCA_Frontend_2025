@@ -37,7 +37,12 @@ export const EventCard = (event: Event) => {
             <Button variant="outline" size="sm" className="text-base" onClick={() => router.push(`/admin/editEvent/${event.id}`)}>
               Edit
             </Button>
-            <Button variant="outline" size="sm" className="text-base">
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-base"
+              onClick={() => router.push(`/admin/attendance/${event.id}`)}
+            >
               Attendence
             </Button>
           </div>
