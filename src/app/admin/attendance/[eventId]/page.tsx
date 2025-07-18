@@ -12,6 +12,7 @@ import {
   Calendar,
 } from 'lucide-react';
 import { useParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import axios from 'axios';
 
 interface Session {
@@ -24,11 +25,13 @@ interface Session {
   present: number;
   absent: number;
   total: number;
+  code?: string; // Add code field
 }
 
 const AttendanceManagement: React.FC = () => {
   
   const params = useParams();
+  const router = useRouter();
   const eventId = params.eventId;
   const [sessions, setSessions] = useState<Session[]>([]); // Start with no sessions
   const [activeSession, setActiveSession] = useState<number | null>(null);
@@ -65,6 +68,7 @@ const AttendanceManagement: React.FC = () => {
               present: 0, // Placeholder, update if you have stats
               absent: 0,  // Placeholder, update if you have stats
               total: 0,   // Placeholder, update if you have stats
+              code: s.code, // Store code
             }))
           );
         }
@@ -228,7 +232,7 @@ const AttendanceManagement: React.FC = () => {
         {/* Page Header */}
         <div className="mb-8">
           <div className="flex items-center space-x-4 mb-4">
-            <button className="flex items-center text-blue-600 hover:text-blue-800">
+            <button className="flex items-center text-blue-600 hover:text-blue-800" onClick={() => router.push('/admin/dashboard')}>
               <ArrowLeft className="w-5 h-5 mr-1" />
               <span>Back to admin dashboard</span>
             </button>
@@ -381,6 +385,21 @@ const AttendanceManagement: React.FC = () => {
                 </button>
               </div>
             </div>
+
+            {/* Show code if session is active */}
+            {(() => {
+              const session = sessions.find((s) => s.id === activeSession);
+              if (session && session.isActive && session.code) {
+                return (
+                  <div className="my-8 flex justify-center">
+                    <div className="text-5xl font-extrabold tracking-widest text-blue-700 bg-blue-100 px-8 py-6 rounded-lg shadow">
+                      {session.code}
+                    </div>
+                  </div>
+                );
+              }
+              return null;
+            })()}
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <StatCard label="Present" color="green" value={sessions.find(s => s.id === activeSession)?.present ?? 0} />
