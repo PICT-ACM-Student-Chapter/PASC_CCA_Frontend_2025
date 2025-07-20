@@ -44,7 +44,7 @@ function useDashboardData(dummyDashboardData: UserAttendanceStats) {
       }
     }
     getData();
-  }, [dummyDashboardData]);
+  }, []);
 
   return dashboardData;
 }
@@ -159,7 +159,7 @@ export default function ProfilePage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <StatCard
                 icon={<BadgeCheck className="w-5 h-5 text-success" />}
-                title="Events Attended"
+                title="Sessions Attended"
                 value={stats.sessionsAttended.toString()}
                 subtext={`out of ${stats.sessions.length} Events`}
                 color="text-success"

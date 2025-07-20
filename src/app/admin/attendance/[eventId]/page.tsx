@@ -26,6 +26,7 @@ interface Session {
   absent: number;
   total: number;
   code?: string; 
+  credits:number;
 }
 
 const AttendanceManagement: React.FC = () => {
@@ -44,6 +45,7 @@ const AttendanceManagement: React.FC = () => {
     startTime: '',
     endTime: '',
     isActive: true,
+    credits: 0,
   });
   const [editSessionId, setEditSessionId] = useState<number | null>(null);
 
@@ -69,6 +71,7 @@ const AttendanceManagement: React.FC = () => {
               absent: 0,  // Placeholder, update if you have stats
               total: 0,   // Placeholder, update if you have stats
               code: s.code, // Store code
+              credits: s.credits || 0, // Include credits from API
             }))
           );
         }
@@ -82,7 +85,7 @@ const AttendanceManagement: React.FC = () => {
   const handleOpenAddModal = () => {
     setShowAddModal(true);
     setEditSessionId(null);
-    setNewSession({ sessionName: '', location: '', startTime: '', endTime: '', isActive: true });
+    setNewSession({ sessionName: '', location: '', startTime: '', endTime: '', isActive: true, credits: 0 });
   };
 
   const handleOpenEditModal = (session: Session) => {
@@ -94,6 +97,7 @@ const AttendanceManagement: React.FC = () => {
       startTime: session.startTime,
       endTime: session.endTime,
       isActive: session.isActive,
+      credits: session.credits,
     });
   };
 
@@ -120,14 +124,14 @@ const AttendanceManagement: React.FC = () => {
   const handleCloseAddModal = () => {
     setShowAddModal(false);
     setEditSessionId(null);
-    setNewSession({ sessionName: '', location: '', startTime: '', endTime: '', isActive: true });
+    setNewSession({ sessionName: '', location: '', startTime: '', endTime: '', isActive: true, credits: 0 });
   };
 
   const handleNewSessionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
     setNewSession((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: type === 'checkbox' ? checked : name === 'credits' ? parseInt(value) || 0 : value,
     }));
   };
 
@@ -144,6 +148,7 @@ const AttendanceManagement: React.FC = () => {
         startTime: new Date(newSession.startTime).toISOString(),
         endTime: new Date(newSession.endTime).toISOString(),
         isActive: newSession.isActive,
+        credits: newSession.credits,
       };
       const response = await axios.post(`http://localhost:4000/api/attendance/events/${eventId}/sessions`, payload, {
         headers: {
@@ -164,6 +169,7 @@ const AttendanceManagement: React.FC = () => {
           present: 0,
           absent: 0,
           total: 0,
+          credits: newSession.credits,
         },
       ]);
     } catch (err) {
@@ -184,6 +190,7 @@ const AttendanceManagement: React.FC = () => {
         startTime: session.startTime,
         endTime: session.endTime,
         isActive: session.isActive,
+        credits: session.credits,
       };
       const res = await axios.put(
         `http://localhost:4000/api/attendance/events/sessions/${session.id}`,
@@ -528,6 +535,7 @@ const AttendanceManagement: React.FC = () => {
                   startTime: newSession.startTime,
                   endTime: newSession.endTime,
                   isActive: newSession.isActive,
+                  credits: newSession.credits,
                 });
               }
               handleCloseAddModal();
@@ -578,6 +586,19 @@ const AttendanceManagement: React.FC = () => {
                   className="w-full border rounded px-3 py-2"
                   required
                   placeholder="Select end time"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Credits</label>
+                <input
+                  type="number"
+                  name="credits"
+                  value={newSession.credits}
+                  onChange={handleNewSessionChange}
+                  className="w-full border rounded px-3 py-2"
+                  required
+                  min="0"
+                  placeholder="Enter credits"
                 />
               </div>
               <div className="flex items-center">
