@@ -177,7 +177,7 @@ export default function EventDetailPage({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-600">{eventDetails?.prerequisites}</p>
+              <p className="text-gray-600">{eventDetails?.prerequisite}</p>
             </CardContent>
           </Card>
 
@@ -293,7 +293,7 @@ export default function EventDetailPage({
                 </div>
                 <div>
                   <p className="font-medium text-gray-900">Credit Hours</p>
-                  <p className="text-gray-600 text-sm">{eventDetails?.creditHours}</p>
+                  <p className="text-gray-600 text-sm">{eventDetails?.credits}</p>
                 </div>
               </div>
 
@@ -312,7 +312,7 @@ export default function EventDetailPage({
             </CardContent>
           </Card>
 
-          {/* Contact */}
+          {/* Contact
           <Card className="border-none shadow-sm hover:shadow-lg transition-shadow duration-200">
             <CardHeader>
               <CardTitle className="text-xl font-semibold text-gray-900">
@@ -330,7 +330,7 @@ export default function EventDetailPage({
                 </div>
               </div>
             </CardContent>
-          </Card>
+          </Card> */}
         </div>
       </div>
 
