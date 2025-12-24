@@ -180,85 +180,16 @@ export default function ProfilePage() {
             {/* OVERVIEW TAB */}
             {activeTab === "overview" && (
               <div className="space-y-6">
-                {/* Profile Info + Stats */}
-                <div className="flex flex-col lg:flex-row gap-6">
+                {/* Just Profile Info - Simple and Clean */}
+                <div className="max-w-2xl mx-auto">
                   {user ? (
                     <ProfileCard user={user} />
                   ) : (
-                    <div className="w-full lg:w-1/3 flex items-center justify-center">
+                    <div className="flex items-center justify-center h-64">
                       <span className="text-gray-500">No user data available.</span>
                     </div>
                   )}
-
-                  {/* Stat Cards */}
-                  <div className="w-full lg:w-2/3 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <StatCard
-                      icon={<BadgeCheck className="w-5 h-5 text-green-600" />}
-                      title="Sessions Attended"
-                      value={stats.sessionsAttended.toString()}
-                      subtext={`Total sessions completed`}
-                      color="text-green-600"
-                    />
-                    <StatCard
-                      icon={<Clock className="w-5 h-5 text-blue-600" />}
-                      title="Credit Hours"
-                      value={stats.totalCredits.toString()}
-                      subtext="Academic credits earned"
-                      color="text-blue-600"
-                    />
-                    <ProgressStatCard
-                      icon={<BookOpen className="w-5 h-5 text-purple-600" />}
-                      title="Completion Rate"
-                      progress={Math.floor(stats.completionRate)}
-                      color="bg-purple-600"
-                    />
-                    <StatCard
-                      icon={<Star className="w-5 h-5 text-yellow-600" />}
-                      title="Personal Best"
-                      value={stats.userPersonalBest.credits.toString()}
-                      subtext={`Highest credits in one session`}
-                      color="text-yellow-600"
-                    />
-                  </div>
                 </div>
-
-                {/* Recent Activity */}
-                <Card className="border-none shadow-sm">
-                  <CardHeader>
-                    <CardTitle className="text-xl">Recent Activity</CardTitle>
-                    <p className="text-sm text-gray-600">Your latest attended sessions</p>
-                  </CardHeader>
-                  <CardContent>
-                    {recentActivities.length === 0 ? (
-                      <div className="text-center py-8">
-                        <BookOpen className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                        <p className="text-gray-500">No activity yet. Start attending sessions!</p>
-                      </div>
-                    ) : (
-                      <div className="space-y-3">
-                        {recentActivities.map((activity, index) => (
-                          <div
-                            key={index}
-                            className="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className="bg-blue-100 p-2 rounded-full">
-                                {activity.icon}
-                              </div>
-                              <div>
-                                <p className="font-medium text-gray-900">{activity.title}</p>
-                                <p className="text-sm text-gray-500">{activity.date}</p>
-                              </div>
-                            </div>
-                            <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100">
-                              +{activity.credits} credits
-                            </Badge>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
               </div>
             )}
 
