@@ -14,6 +14,40 @@ import { analyticsAPI } from '@/lib/api';
 import { DashboardAnalytics } from '@/types/analytics';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatDate } from '@/lib/utils';
+function mapDashboardAnalytics(apiData: any): DashboardAnalytics {
+  return {
+    // ---- Overview ----
+    totalEvents: apiData.overview.totalEvents,
+    totalUsers: apiData.overview.totalUsers,
+    totalRsvps: apiData.overview.totalRSVPs,
+    totalAttendance: apiData.overview.totalAttendances,
+    // Backend doesn’t provide these yet - UPDATE: Now it does for rating!
+    totalCreditsDistributed: 0,
+    averageEventRating: apiData.overview.averageEventRating ?? 0,
+
+    // ---- Events by status ----
+    upcomingEvents: apiData.eventsByStatus.UPCOMING ?? 0,
+    ongoingEvents: apiData.eventsByStatus.ONGOING ?? 0,
+    completedEvents: apiData.eventsByStatus.COMPLETED ?? 0,
+
+    // ---- Top Events ----
+    topEvents: apiData.topEvents.map((e: any) => ({
+      id: e.id,
+      title: e.title,
+      attendanceCount: e.totalAttendance,
+      rating: e.rating ?? 0
+    })),
+
+    // ---- Recent Activity ----
+    recentActivity: apiData.recentEvents.map((e: any) => ({
+      type: "EVENT",
+      description: `${e.title} (${e.status})`,
+      timestamp: e.startDate
+    }))
+  };
+}
+
+
 
 export default function AdminAnalyticsPage() {
   const [analytics, setAnalytics] = useState<DashboardAnalytics | null>(null);
@@ -27,16 +61,24 @@ export default function AdminAnalyticsPage() {
 
   const fetchAnalytics = async () => {
     try {
-      const response = await analyticsAPI.getAdminDashboard();
-      if (response.data?.success && response.data.data) {
-        setAnalytics(response.data.data as DashboardAnalytics);
-      }
+      setLoading(true);
+
+      const res = await analyticsAPI.getAdminDashboard();
+
+      console.log("RAW API DATA 👉", res.data.data);
+
+      const mappedAnalytics = mapDashboardAnalytics(res.data.data);
+
+      console.log("FINAL DASHBOARD DATA 👉", mappedAnalytics);
+
+      setAnalytics(mappedAnalytics);
     } catch (error) {
-      console.error('Error fetching analytics:', error);
+      console.error("Error fetching analytics:", error);
     } finally {
       setLoading(false);
     }
   };
+
 
   if (!mounted) {
     return (
@@ -75,7 +117,7 @@ export default function AdminAnalyticsPage() {
           <MetricCard
             icon={<Calendar className="w-6 h-6 text-blue-500" />}
             title="Total Events"
-            value={analytics?.totalEvents?.toString() || '0'}
+            value={(analytics?.totalEvents ?? 0).toString()}
             subtitle={`${analytics?.upcomingEvents || 0} upcoming`}
             loading={loading}
             color="bg-blue-50 dark:bg-blue-950/20"
@@ -83,7 +125,7 @@ export default function AdminAnalyticsPage() {
           <MetricCard
             icon={<Users className="w-6 h-6 text-green-500" />}
             title="Total Students"
-            value={analytics?.totalUsers?.toString() || '0'}
+            value={(analytics?.totalUsers ?? 0).toString()}
             subtitle={`${analytics?.totalRsvps || 0} RSVPs`}
             loading={loading}
             color="bg-green-50 dark:bg-green-950/20"
@@ -91,16 +133,18 @@ export default function AdminAnalyticsPage() {
           <MetricCard
             icon={<Award className="w-6 h-6 text-yellow-500" />}
             title="Credits Distributed"
-            value={analytics?.totalCreditsDistributed?.toString() || '0'}
+            value={(analytics?.totalCreditsDistributed ?? 0).toString()}
             subtitle={`${analytics?.totalAttendance || 0} attendances`}
             loading={loading}
             color="bg-yellow-50 dark:bg-yellow-950/20"
           />
+
           <MetricCard
             icon={<Star className="w-6 h-6 text-purple-500" />}
             title="Average Rating"
-            value={analytics?.averageEventRating?.toFixed(1) || '0.0'}
-            subtitle="Event satisfaction"
+            value={(analytics?.averageEventRating ?? 0).toString()}
+            // averageRating: apiData.reviews?.averageRating ?? apiData.averageRating ?? 0,
+            subtitle="Overall event rating"
             loading={loading}
             color="bg-purple-50 dark:bg-purple-950/20"
           />

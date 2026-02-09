@@ -5,48 +5,69 @@ import { useRouter } from "next/navigation";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, Users, Plus, BarChart3, Megaphone } from "lucide-react";
+import { Calendar, Users, Plus, BarChart3, Megaphone, CheckCircle, UserCheck } from "lucide-react";
 import { StatsCard } from "@/components/admin/stats-card";
 import { EventsList } from "@/components/admin/event-list";
 import { useFetchEventsForAdmin } from "@/hooks/events";
 import { Event, EventStatus } from "@/types/events";
-import axios from "axios";
-import { apiUrl } from "@/lib/utils";
+import { analyticsAPI } from "@/lib/api";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("ALL EVENTS");
-  const [studentCount, setStudentCount] = useState<number | null>(null);
-  const [studentLoading, setStudentLoading] = useState(true);
-  const [studentError, setStudentError] = useState<string | null>(null);
+  const [analytics, setAnalytics] = useState<any>(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(true);
+  const [analyticsError, setAnalyticsError] = useState<string | null>(null);
   const router = useRouter();
 
   // Use the hook to fetch events
   const { events, loading, error, refetchEvents } = useFetchEventsForAdmin();
 
-  // Fetch student count
+  // Fetch comprehensive analytics
   React.useEffect(() => {
-    const fetchStudentCount = async () => {
-      setStudentLoading(true);
-      setStudentError(null);
+    const fetchAnalytics = async () => {
+      setAnalyticsLoading(true);
+      setAnalyticsError(null);
       try {
-        const token = localStorage.getItem("token");
-        const res = await axios.get(`${apiUrl}/auth/user/count`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setStudentCount(res.data.count);
+        const response = await analyticsAPI.getAdminDashboard();
+        console.log('=== ADMIN ANALYTICS RESPONSE ===');
+        console.log('Success:', response.data?.success);
+        console.log('Overview:', response.data?.data?.overview);
+        console.log('================================');
+
+        if (response.data?.success && response.data.data) {
+          setAnalytics(response.data.data);
+        } else {
+          throw new Error('Invalid analytics response');
+        }
       } catch (err: any) {
-        setStudentError("Failed to fetch student count");
-        setStudentCount(null);
+        console.error('Error fetching analytics:', err);
+        setAnalyticsError("Failed to fetch analytics");
+        // Set fallback data
+        setAnalytics({
+          overview: {
+            totalUsers: 0,
+            totalEvents: 0,
+            totalAttendances: 0,
+            totalRSVPs: 0,
+            attendanceRate: 0
+          }
+        });
       } finally {
-        setStudentLoading(false);
+        setAnalyticsLoading(false);
       }
     };
-    fetchStudentCount();
+    fetchAnalytics();
   }, []);
 
-  // Calculate stats from fetched events
-  const totalEvents = events.length;
+  // Get stats from analytics API (with fallback to event count)
+  const totalEvents = analytics?.overview?.totalEvents ?? events.length;
+  const totalUsers = analytics?.overview?.totalUsers ?? 0;
+  const totalAttendances = analytics?.overview?.totalAttendances ?? 0;
+  const totalRSVPs = analytics?.overview?.totalRSVPs ?? 0;
+  const attendanceRate = analytics?.overview?.attendanceRate ?? 0;
+
+  // Calculate active events from local data as fallback
   const activeEvents = events.filter(
     (event) => event.status === "ONGOING" || event.status === "UPCOMING"
   ).length;
@@ -123,15 +144,54 @@ const AdminDashboard = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <StatsCard title="Total Events" value={totalEvents} Icon={Calendar} />
-          <StatsCard title="Active Events" value={activeEvents} />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <StatsCard
+            title="Total Events"
+            value={analyticsLoading ? "..." : totalEvents}
+            Icon={Calendar}
+          />
           <StatsCard
             title="Total Students"
-            value={studentLoading ? "Loading..." : studentError ? studentError : studentCount ?? "-"}
+            value={analyticsLoading ? "..." : totalUsers}
             Icon={Users}
           />
+          <StatsCard
+            title="Total RSVPs"
+            value={analyticsLoading ? "..." : totalRSVPs}
+            Icon={UserCheck}
+          />
+          <StatsCard
+            title="Total Attendances"
+            value={analyticsLoading ? "..." : totalAttendances}
+            Icon={CheckCircle}
+          />
         </div>
+
+        {/* Additional Stats Row */}
+        {!analyticsLoading && analytics?.overview && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 rounded-xl p-6 border border-blue-200 dark:border-blue-800">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Active Events</p>
+                  <p className="text-3xl font-bold text-foreground">{activeEvents}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Ongoing + Upcoming</p>
+                </div>
+                <BarChart3 className="w-12 h-12 text-blue-500 opacity-50" />
+              </div>
+            </div>
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 rounded-xl p-6 border border-green-200 dark:border-green-800">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Attendance Rate</p>
+                  <p className="text-3xl font-bold text-foreground">{attendanceRate.toFixed(1)}%</p>
+                  <p className="text-xs text-muted-foreground mt-1">Overall participation</p>
+                </div>
+                <CheckCircle className="w-12 h-12 text-green-500 opacity-50" />
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Events Section */}
         <Card className="border-none bg-background shadow-none">

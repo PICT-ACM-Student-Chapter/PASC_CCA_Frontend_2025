@@ -14,13 +14,49 @@ import {
   BarChart3,
   RefreshCw
 } from 'lucide-react';
-import { analyticsAPI, eventAPI, rsvpAPI } from '@/lib/api';
+import { analyticsAPI, eventAPI, rsvpAPI, reviewAPI } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { formatDateTime } from '@/lib/utils';
 
+// Mapper function to transform backend API response to EventAnalytics interface
+function mapEventAnalytics(apiData: any, reviewsList: any[] = []): EventAnalytics {
+  const rav = apiData.message === "Event not found" ? {} : apiData;
+
+  // Handle case where reviews list might come from API or separate fetch
+  const reviews = Array.isArray(reviewsList) && reviewsList.length > 0
+    ? reviewsList
+    : (Array.isArray(apiData.reviews?.list) ? apiData.reviews.list : []);
+
+  // Calculate total credits from attendance list if available
+  const calculatedCredits = Array.isArray(apiData.attendanceList)
+    ? apiData.attendanceList.reduce((sum: number, item: any) => sum + (item.session?.credits || 0), 0)
+    : 0;
+
+  return {
+    eventId: apiData.event?.id ?? 0,
+    eventTitle: apiData.event?.title ?? '',
+    totalRsvps: apiData.rsvpStats?.total ?? apiData.totalRsvps ?? 0,
+    totalAttendance: apiData.attendanceStats?.totalAttendances ?? apiData.totalAttendance ?? 0,
+    attendanceRate: parseFloat(apiData.attendanceStats?.attendanceRate ?? apiData.attendanceRate ?? 0),
+    averageRating: parseFloat(apiData.reviews?.averageRating ?? apiData.averageRating ?? 0),
+    totalCreditsDistributed: apiData.creditsDistributed ?? calculatedCredits ?? 0,
+    sessionsCount: apiData.sessions?.length ?? apiData.sessionStats?.length ?? 0,
+    reviewsCount: apiData.reviews?.totalReviews ?? apiData.totalReviews ?? reviews.length ?? 0,
+    reviews: {
+      averageRating: parseFloat(apiData.reviews?.averageRating ?? apiData.averageRating ?? 0),
+      totalReviews: apiData.reviews?.totalReviews ?? apiData.totalReviews ?? reviews.length ?? 0,
+      list: reviews
+    },
+    attendanceList: Array.isArray(apiData.attendanceList) ? apiData.attendanceList : [],
+    sessionStats: Array.isArray(apiData.sessions) ? apiData.sessions : (Array.isArray(apiData.sessionStats) ? apiData.sessionStats : [])
+  };
+}
+
 interface EventAnalytics {
+  eventId?: number;
+  eventTitle?: string;
   totalRsvps: number;
   totalAttendance: number;
   attendanceRate: number;
@@ -56,6 +92,12 @@ interface EventAnalytics {
       credits: number;
     };
     attendedAt: string;
+  }>;
+  sessionStats?: Array<{
+    id: number;
+    sessionName: string;
+    attendanceCount: number;
+    credits: number;
   }>;
 }
 
@@ -101,13 +143,33 @@ export default function EventAnalyticsPage({
 
   const fetchAnalytics = async (id: number) => {
     try {
-      const response = await analyticsAPI.getEventAnalytics(id);
-      if (response.data?.success && response.data.data) {
-        setAnalytics(response.data.data as EventAnalytics);
+      // Fetch analytics AND reviews in parallel
+      const [analyticsResponse, reviewsResponse] = await Promise.all([
+        analyticsAPI.getEventAnalytics(id),
+        reviewAPI.getEventReviews(id).catch(() => ({ data: { success: false, data: [] } })) // gracefully handle reviews error
+      ]);
+
+      console.log('=== RAW API RESPONSE ===');
+      console.log('Analytics Data:', analyticsResponse.data?.data);
+      console.log('Reviews Data:', reviewsResponse.data?.data);
+      console.log('========================');
+
+      if (analyticsResponse.data?.success && analyticsResponse.data.data) {
+        // Extract reviews list from reviews endpoint if available
+        const reviewsList = reviewsResponse.data?.success ? reviewsResponse.data.data : [];
+
+        const mappedAnalytics = mapEventAnalytics(analyticsResponse.data.data, reviewsList);
+        console.log('=== MAPPED ANALYTICS ===');
+        console.log('Mapped data:', mappedAnalytics);
+        console.log('Reviews count:', mappedAnalytics.reviewsCount);
+        console.log('Reviews list length:', mappedAnalytics.reviews?.list?.length);
+        console.log('========================');
+
+        setAnalytics(mappedAnalytics);
       }
     } catch (error) {
       console.error('Error fetching analytics:', error);
-      // Set default analytics if API fails
+      // Set complete default analytics structure if API fails
       setAnalytics({
         totalRsvps: 0,
         totalAttendance: 0,
@@ -116,6 +178,12 @@ export default function EventAnalyticsPage({
         totalCreditsDistributed: 0,
         sessionsCount: 0,
         reviewsCount: 0,
+        reviews: {
+          averageRating: 0,
+          totalReviews: 0,
+          list: []
+        },
+        attendanceList: []
       });
     }
   };
