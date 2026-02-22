@@ -66,7 +66,7 @@ const Navbar = () => {
   }, [showUserMenu]);
 
   return (
-    <nav className="w-full top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 transition-colors">
+    <nav className="w-full sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 transition-colors">
       <div className="flex justify-between items-center mx-auto px-5 py-3">
         {/* Logo */}
         <Link href={isLoggedIn ? (role === "admin" ? "/admin/dashboard" : "/student/dashboard") : "/"} className="flex items-center cursor-pointer">
@@ -162,8 +162,8 @@ const Navbar = () => {
 
           <ThemeSwitcher />
 
-          {/* Notification Bell - only show when logged in as student */}
-          {isLoggedIn && role === "student" && <NotificationBell />}
+          {/* Notification Bell - show for both student and admin */}
+          {isLoggedIn && <NotificationBell />}
 
           {/* Show Login/Signup for guests, Profile dropdown for logged in users */}
           {!isLoggedIn ? (

@@ -15,7 +15,13 @@ const periods: { value: LeaderboardPeriod; label: string }[] = [
   { value: 'ALL_TIME', label: 'All Time' },
 ];
 
+const DIVISIONS = 13; // Division from roll number: 2nd and 3rd digits (e.g. 10809 → 8)
+
+type LeaderboardScope = 'global' | 'division';
+
 export default function LeaderboardPage() {
+  const [scope, setScope] = useState<LeaderboardScope>('global');
+  const [selectedDivision, setSelectedDivision] = useState<number>(1);
   const [selectedPeriod, setSelectedPeriod] = useState<LeaderboardPeriod>('SEMESTER');
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -23,13 +29,15 @@ export default function LeaderboardPage() {
 
   useEffect(() => {
     fetchLeaderboard();
-  }, [selectedPeriod]);
+  }, [selectedPeriod, scope, selectedDivision]);
 
   const fetchLeaderboard = async () => {
     setLoading(true);
     try {
+      const divisionParam = scope === 'division' ? selectedDivision : undefined;
       const response = await leaderboardAPI.get({
         period: selectedPeriod,
+        division: divisionParam,
         limit: 50
       });
 
@@ -37,7 +45,6 @@ export default function LeaderboardPage() {
         const data = response.data.data as LeaderboardEntry[];
         setLeaderboard(data);
 
-        // Find current user
         const userId = parseInt(localStorage.getItem('userId') || '0');
         const userEntry = data.find(entry => entry.userId === userId);
         setUserRank(userEntry || null);
@@ -89,6 +96,46 @@ export default function LeaderboardPage() {
           </p>
         </div>
 
+        {/* Global vs Division scope */}
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <span className="text-sm text-muted-foreground font-medium">View:</span>
+          <div className="flex rounded-lg border border-border overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setScope('global')}
+              className={`px-4 py-2.5 text-sm font-medium transition-colors ${scope === 'global'
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-card text-foreground hover:bg-accent'
+                }`}
+            >
+              Global
+            </button>
+            <button
+              type="button"
+              onClick={() => setScope('division')}
+              className={`px-4 py-2.5 text-sm font-medium transition-colors border-l border-border ${scope === 'division'
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-card text-foreground hover:bg-accent'
+                }`}
+            >
+              Division
+            </button>
+          </div>
+          {scope === 'division' && (
+            <select
+              value={selectedDivision}
+              onChange={(e) => setSelectedDivision(Number(e.target.value))}
+              className="h-10 px-3 rounded-lg border border-border bg-card text-foreground text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              {Array.from({ length: DIVISIONS }, (_, i) => i + 1).map((div) => (
+                <option key={div} value={div}>
+                  Division {div}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+
         {/* Period Selector */}
         <div className="flex flex-wrap items-center justify-center gap-2">
           {periods.map(period => (
@@ -114,7 +161,9 @@ export default function LeaderboardPage() {
                   <TrendingUp className="w-8 h-8" />
                 </div>
                 <div>
-                  <p className="text-blue-100 text-sm font-medium">Your Current Rank</p>
+                  <p className="text-blue-100 text-sm font-medium">
+                    Your rank {scope === 'division' ? `in Division ${selectedDivision}` : ''}
+                  </p>
                   <h2 className="text-4xl font-bold">#{userRank.rank}</h2>
                   <p className="text-blue-100 mt-1">
                     {userRank.credits} credits • {userRank.eventsAttended} events

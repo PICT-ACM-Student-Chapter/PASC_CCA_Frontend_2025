@@ -32,7 +32,7 @@ export default function RootLayout({
       <body className={`${dmSans.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
         <ThemeProvider>
           <Navbar />
-          <div className="pt-2">
+          <div className="pt-0">
             {children}
           </div>
         </ThemeProvider>
