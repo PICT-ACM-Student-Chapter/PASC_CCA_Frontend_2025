@@ -73,17 +73,17 @@ export const EventCard = ({ eventWithRsvp }: { eventWithRsvp: EventWithRsvp }) =
   return (
     <Card className="w-full border-none shadow-sm hover:shadow-lg transition-shadow duration-200">
       <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <CardTitle className="text-xl font-semibold">{event.title}</CardTitle>
+        <div className="flex items-start justify-between gap-2">
+          <CardTitle className="text-xl font-semibold line-clamp-2 break-all">{event.title}</CardTitle>
           <Badge
             variant={getStatusBadgeVariant(event.status)}
-            className={`${getStatusColor(event.status)} ${event.status === 'ONGOING' ? 'bg-green-100' : ''
+            className={`shrink-0 ${getStatusColor(event.status)} ${event.status === 'ONGOING' ? 'bg-green-100' : ''
               }`}
           >
             {event.status}
           </Badge>
         </div>
-        <CardDescription className="text-sm text-gray-600 leading-relaxed">
+        <CardDescription className="text-sm text-gray-600 leading-relaxed line-clamp-1 break-all mt-2">
           {event.description}
         </CardDescription>
       </CardHeader>
