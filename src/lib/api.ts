@@ -138,9 +138,13 @@ export const rsvpAPI = {
   getRsvpByEventId: (eventId: number) =>
     api.get(`rsvps/events/${eventId}/rsvp`),
 
-  // Admin endpoint (requireAdmin)
+  // Admin endpoints (requireAdmin)
   getEventRsvps: (eventId: number) =>
     api.get(`rsvps/event/${eventId}`),
+
+  // Admin badge: count new RSVPs in the last 24 hours
+  getAdminNewCount: () =>
+    api.get('rsvps/admin/new-count'),
 };
 
 // Attendance APIs
@@ -281,6 +285,10 @@ export const leaderboardAPI = {
   // User endpoint (requireUser); division for rank within that division
   getMyRank: (params?: { period?: string; division?: number }) =>
     api.get('leaderboard/my-rank', { params }),
+
+  // User endpoint (requireUser); returns year, roll, isFirstYear, and division derived from roll
+  getMyDivision: () =>
+    api.get('leaderboard/my-division'),
 };
 
 // Analytics APIs

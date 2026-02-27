@@ -12,7 +12,7 @@ export type NotificationType =
 
 export interface Notification {
     id: number;
-    userId: number;
+    userId?: number;
     type: NotificationType;
     title: string;
     message: string;
@@ -20,5 +20,5 @@ export interface Notification {
     relatedEntityId?: number;
     relatedEntityType?: string;
     createdAt: string;
-    sentAt: string;
+    sentAt?: string;
 }

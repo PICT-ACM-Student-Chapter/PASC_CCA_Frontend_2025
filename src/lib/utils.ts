@@ -37,6 +37,7 @@ export const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/
 
 // Date formatting utilities
 export function formatDistanceToNow(date: Date): string {
+  if (!date || isNaN(date.getTime())) return '—';
   const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
 
   if (seconds < 60) return 'just now';

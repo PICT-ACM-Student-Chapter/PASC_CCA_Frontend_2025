@@ -59,8 +59,8 @@ export function NotificationItem({ notification, onMarkAsRead }: NotificationIte
           <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
             {notification.message}
           </p>
-          <p className="text-xs text-muted-foreground mt-2" suppressHydrationWarning>
-            {formatDistanceToNow(new Date(notification.sentAt))}
+          <p className='text-xs text-muted-foreground mt-2' suppressHydrationWarning>
+            {formatDistanceToNow(new Date(notification.createdAt ?? notification.sentAt))}
           </p>
         </div>
       </div>

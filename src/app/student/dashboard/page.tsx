@@ -15,7 +15,6 @@ import { analyticsAPI, leaderboardAPI } from '@/lib/api';
 import { LeaderboardEntry } from '@/types/leaderboard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
-import { AnnouncementList } from '@/components/announcements/AnnouncementList';
 
 export default function StudentDashboard() {
   const router = useRouter();
@@ -278,14 +277,6 @@ export default function StudentDashboard() {
                       ))}
                     </div>
                   )}
-                </div>
-              </div>
-
-              {/* Right Column - Announcements */}
-              <div className="lg:col-span-1">
-                <div className="bg-card rounded-xl border border-border p-6">
-                  <h3 className="text-lg font-semibold mb-4 text-foreground">Announcements</h3>
-                  <AnnouncementList />
                 </div>
               </div>
             </div>
