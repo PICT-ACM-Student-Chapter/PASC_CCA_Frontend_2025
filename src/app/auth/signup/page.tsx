@@ -8,8 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { RoleToggle } from "@/components/auth/RoleToggle";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useAuthStore } from "@/lib/store";
-import { Department, IUser } from "@/types/auth";
-import { IAdmin } from "@/types/auth";
+import { Department } from "@/types/auth";
 import { authAPI } from "@/lib/api";
 
 export default function Signup() {
@@ -30,7 +29,7 @@ export default function Signup() {
   const [error, setError] = useState<string | null>(null);
   const [checkingAuth, setCheckingAuth] = useState<boolean>(true);
 
-  const { setAuth } = useAuthStore();
+  const { clearAuth } = useAuthStore();
 
   // Redirect already-authenticated users away from the signup page
   useEffect(() => {
@@ -99,27 +98,26 @@ export default function Signup() {
         };
       }
 
-      const res = role === "admin"
-        ? await authAPI.adminRegister(payload)
-        : await authAPI.userRegister(payload);
+      const res =
+        role === "admin"
+          ? await authAPI.adminRegister(payload)
+          : await authAPI.userRegister(payload);
 
       const data = res.data;
-      const authResponse = data.data;
+
       if (data.success) {
-        setAuth({
-          user: role === "student" ? authResponse.user : undefined,
-          admin: role === "admin" ? authResponse.admin : undefined,
-          role: role as "student" | "admin",
-        });
-        if (authResponse.token) {
-          localStorage.setItem("token", authResponse.token);
-          localStorage.setItem("role", role);
-          const userId = role === "student" ? authResponse.user?.id : authResponse.admin?.id;
-          if (userId) {
-            localStorage.setItem("userId", userId.toString());
-          }
-        }
-        window.location.href = "/auth/login";
+        // Ensure no accidental session is kept from before
+        clearAuth();
+        localStorage.removeItem("token");
+        localStorage.removeItem("role");
+        localStorage.removeItem("userId");
+        document.cookie =
+          "token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;";
+        document.cookie =
+          "role=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;";
+
+        // Strictly force manual login after signup
+        router.push("/auth/login");
       } else {
         setError(data.error || "Signup failed");
       }

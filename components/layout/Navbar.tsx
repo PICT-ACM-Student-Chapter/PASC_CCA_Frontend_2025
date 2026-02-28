@@ -33,18 +33,33 @@ const Navbar = () => {
   const isLandingPage = pathname === "/";
   const isAuthPage = pathname.startsWith("/auth");
 
+  const clearAuthStorageAndCookies = () => {
+    clearAuth();
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    localStorage.removeItem("userId");
+    document.cookie =
+      "token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;";
+    document.cookie =
+      "role=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;";
+  };
+
   const handleLogout = async () => {
     try {
       const token = localStorage.getItem("token");
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'}/auth/user/logout`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await fetch(
+        `${
+          process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"
+        }/auth/user/logout`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
     } catch (e) {
       // ignore error
     }
-    clearAuth();
-    localStorage.removeItem("token");
+    clearAuthStorageAndCookies();
     router.push("/auth/login");
   };
 
