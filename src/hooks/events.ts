@@ -18,13 +18,17 @@ export function useFetchEventsForAdmin(search?: string) {
             const res = await eventAPI.getAdminEvents(
                 searchQuery ? { search: searchQuery } : undefined
             );
-            
-            // Fix: res.data.data IS the array of events based on your backend response
-            const events = res.data.data || []; 
-            
+
+            // Backend returns: { success, data: { events: [...], pagination: { total, page, limit, pages } } }
+            const responseData = res.data?.data;
+            const events: Event[] = Array.isArray(responseData?.events)
+                ? responseData.events
+                : Array.isArray(responseData)
+                    ? responseData   // fallback if server ever returns plain array
+                    : [];
+
             setFetchedEvents(events);
-            // Since there's no pagination object in the current response, just use the array length
-            setTotalCount(events.length); 
+            setTotalCount(responseData?.pagination?.total ?? events.length);
         } catch (err) {
             setError("Failed to fetch events");
             setFetchedEvents([]);
@@ -64,7 +68,8 @@ export function useFetchEventsForStudentRsvp() {
             // Use user events endpoint - returns events with RSVP status
             const res = await eventAPI.getUserEvents();
             // Pass through raw ISO date strings - let components format them
-            const events = res.data.data || [];
+            const raw2 = res.data?.data ?? res.data?.events ?? res.data;
+            const events = Array.isArray(raw2) ? raw2 : [];
             setFetchedEvents(events);
         } catch (err) {
             setError("Failed to fetch events");
