@@ -12,6 +12,7 @@ import {
   BarChart3
 } from 'lucide-react';
 import { analyticsAPI, leaderboardAPI } from '@/lib/api';
+import { apiUrl } from '@/lib/utils';
 import { LeaderboardEntry } from '@/types/leaderboard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
@@ -32,19 +33,24 @@ export default function StudentDashboard() {
   const [attendanceData, setAttendanceData] = useState<any>(null);
 
   useEffect(() => {
-    fetchDashboardData();
-    fetchAttendanceData();
+    // Run both fetches; dashboard credits are set after both complete
+    Promise.all([fetchDashboardData(), fetchAttendanceData()]);
   }, []);
 
   const fetchAttendanceData = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'}/attendance/user-attendance-stats`, {
+      // Use the shared apiUrl (respects NEXT_PUBLIC_API_URL env var and correct port)
+      const response = await fetch(`${apiUrl}/attendance/user-attendance-stats`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await response.json();
-      console.log('Attendance data:', data);
       setAttendanceData(data);
+      // Attendance API is the single source of truth for credits across all tabs
+      setStats((prev) => ({
+        ...prev,
+        totalCredits: data?.totalCredits ?? 0,
+      }));
     } catch (error) {
       console.error('Error fetching attendance:', error);
     } finally {
@@ -60,12 +66,15 @@ export default function StudentDashboard() {
       if (analyticsResponse.data?.success && analyticsResponse.data.data) {
         const data = analyticsResponse.data.data as any;
         const overview = data.overview || {};
-        setStats({
-          totalCredits: overview.totalCredits || 0,
+        // NOTE: totalCredits is intentionally NOT set here.
+        // fetchAttendanceData() is the single source of truth for credits and
+        // will update totalCredits via its own setStats call after it resolves.
+        setStats((prev) => ({
+          ...prev,
           eventsAttended: overview.eventsAttended || 0,
           upcomingEvents: data.upcomingEvents?.length || 0,
           completionRate: overview.attendanceRate || 0,
-        });
+        }));
       }
 
       const leaderboardResponse = await leaderboardAPI.get({

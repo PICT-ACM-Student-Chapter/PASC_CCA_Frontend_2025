@@ -90,10 +90,11 @@ export const EventsList = ({ events, filterStatus, onRefresh }: EventsListProps)
     setCurrentPage(1);
   }, [filterStatus]);
 
+  const safeEvents = Array.isArray(events) ? events : [];
   const filteredEvents =
     filterStatus !== 'ALL EVENTS'
-      ? events.filter((event) => event.status === filterStatus)
-      : events;
+      ? safeEvents.filter((event) => event.status === filterStatus)
+      : safeEvents;
 
   const totalPages = Math.max(1, Math.ceil(filteredEvents.length / PAGE_SIZE));
   const safePage = Math.min(currentPage, totalPages);

@@ -33,7 +33,7 @@ export const getStatusBadgeVariant = (status: Event['status']) => {
   }
 };
 
-export const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/';
+export const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
 
 // Date formatting utilities
 export function formatDistanceToNow(date: Date): string {

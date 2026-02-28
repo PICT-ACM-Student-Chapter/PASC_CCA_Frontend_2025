@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuthStore } from "@/lib/store";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
+import { apiUrl } from "@/lib/utils";
 
 const Navbar = () => {
   const router = useRouter();
@@ -52,9 +53,9 @@ const Navbar = () => {
           process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"
         }/auth/user/logout`,
         {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      }
       );
     } catch (e) {
       // ignore error
