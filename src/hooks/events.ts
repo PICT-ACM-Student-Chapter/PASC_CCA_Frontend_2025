@@ -18,10 +18,13 @@ export function useFetchEventsForAdmin(search?: string) {
             const res = await eventAPI.getAdminEvents(
                 searchQuery ? { search: searchQuery } : undefined
             );
-            const data = res.data.data;
-            const events = data?.events || [];
+            
+            // Fix: res.data.data IS the array of events based on your backend response
+            const events = res.data.data || []; 
+            
             setFetchedEvents(events);
-            setTotalCount(data?.pagination?.total ?? events.length);
+            // Since there's no pagination object in the current response, just use the array length
+            setTotalCount(events.length); 
         } catch (err) {
             setError("Failed to fetch events");
             setFetchedEvents([]);

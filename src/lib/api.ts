@@ -35,6 +35,8 @@ api.interceptors.response.use(
         localStorage.removeItem('token');
         localStorage.removeItem('role');
         localStorage.removeItem('userId');
+        document.cookie = 'token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+        document.cookie = 'role=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;';
         window.location.href = '/auth/login';
       }
     } else if (error.response?.status === 403) {

@@ -175,7 +175,6 @@ import { RoleToggle } from "@/components/auth/RoleToggle";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useAuthStore } from "@/lib/store";
 import { authAPI } from "@/lib/api";
-import { apiUrl } from "@/lib/utils";
 
 export default function Login() {
   const router = useRouter();
@@ -225,9 +224,10 @@ export default function Login() {
     setError(null);
 
     try {
-      const res = role === "admin"
-        ? await authAPI.adminLogin(email, password)
-        : await authAPI.userLogin(email, password);
+      const res =
+        role === "admin"
+          ? await authAPI.adminLogin(email, password)
+          : await authAPI.userLogin(email, password);
 
       const data = res.data;
       const authResponse = data.data;
@@ -242,26 +242,48 @@ export default function Login() {
         admin: role === "admin" ? authResponse.admin : undefined,
         role: role as "student" | "admin",
       });
+
       if (authResponse.token) {
         localStorage.setItem("token", authResponse.token);
         localStorage.setItem("role", role);
-        const userId = role === "student" ? authResponse.user?.id : authResponse.admin?.id;
+        const userId =
+          role === "student" ? authResponse.user?.id : authResponse.admin?.id;
         if (userId) {
           localStorage.setItem("userId", userId.toString());
         }
-      }
-      router.push(role === "admin" ? "/admin/dashboard" : "/student/events");
 
+        // Also set cookies for middleware-based protection
+        const expires = new Date(
+          Date.now() + 7 * 24 * 60 * 60 * 1000
+        ).toUTCString();
+        document.cookie = `token=${authResponse.token}; Path=/; Expires=${expires}; SameSite=Lax`;
+        document.cookie = `role=${role}; Path=/; Expires=${expires}; SameSite=Lax`;
+      } else {
+        // Defensive: clear any stale auth if token is missing
+        localStorage.removeItem("token");
+        localStorage.removeItem("role");
+        localStorage.removeItem("userId");
+        document.cookie =
+          "token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;";
+        document.cookie =
+          "role=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;";
+      }
+
+      router.push(role === "admin" ? "/admin/dashboard" : "/student/events");
     } catch (err: any) {
       const res = err.response;
       if (!res) {
-        setError("Cannot connect to server. Make sure the backend is running on http://localhost:3001");
+        setError(
+          "Cannot connect to server. Make sure the backend is running on http://localhost:4000"
+        );
         return;
       }
       const msg = res.data?.error;
       const details = res.data?.details;
       const detailMsg = Array.isArray(details)
-        ? details.map((d: { field?: string; message?: string }) => d.message || "").join(". ")
+        ? details
+            .map((d: { field?: string; message?: string }) => d.message || "")
+            .join(". ")
         : "";
       setError(msg || detailMsg || `Login failed (${res.status})`);
     } finally {
