@@ -36,21 +36,9 @@ export const getStatusBadgeVariant = (status: Event['status']) => {
 export const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/';
 
 // Date formatting utilities
-export function formatDistanceToNow(date: Date | string | null | undefined): string {
-  if (!date) {
-    return 'just now';
-  }
-
-  const d = date instanceof Date ? date : new Date(date);
-  const timestamp = d.getTime();
-
-  // Handle invalid dates gracefully
-  if (Number.isNaN(timestamp)) {
-    return 'just now';
-  }
-
-  // Use absolute difference to tolerate small clock / timezone skews
-  const seconds = Math.abs(Math.floor((Date.now() - timestamp) / 1000));
+export function formatDistanceToNow(date: Date): string {
+  if (!date || isNaN(date.getTime())) return '—';
+  const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
 
   if (seconds < 60) return 'just now';
   if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;

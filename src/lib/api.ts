@@ -112,8 +112,8 @@ export const eventAPI = {
   delete: (id: number) =>
     api.delete(`events/${id}`),
 
-  getAdminEvents: () =>
-    api.get('events/admin'),
+  getAdminEvents: (params?: { search?: string; page?: number; limit?: number }) =>
+    api.get('events/admin', { params }),
 
   // User endpoints (requireUser)
   getUserEvents: () =>
@@ -253,7 +253,7 @@ export const notificationAPI = {
 // Announcement APIs
 export const announcementAPI = {
   // User endpoints (requireUser)
-  getAll: (params?: { priority?: string; limit?: number; includeRead?: boolean }) =>
+  getAll: (params?: { priority?: string; limit?: number }) =>
     api.get('announcements', { params }),
 
   markAsRead: (id: number) =>

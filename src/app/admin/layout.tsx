@@ -1,9 +1,10 @@
-import { AuthGuard } from "../../../components/AuthGuard";
+import { AdminGuard } from "../../../components/AdminGuard";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <AuthGuard>
-        {children}
-    </AuthGuard>
+    <AdminGuard>
+      {children}
+    </AdminGuard>
   );
 }
+

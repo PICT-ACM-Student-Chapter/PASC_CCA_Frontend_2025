@@ -165,14 +165,14 @@
 
 
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { motion } from "framer-motion";
 import { RoleToggle } from "@/components/auth/RoleToggle";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useAuthStore } from "@/lib/store";
 import { authAPI } from "@/lib/api";
 import { apiUrl } from "@/lib/utils";
@@ -185,7 +185,30 @@ export default function Login() {
   const [password, setPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [checkingAuth, setCheckingAuth] = useState<boolean>(true);
   const { setAuth } = useAuthStore();
+
+  // Redirect already-authenticated users away from the login page
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const storedRole = localStorage.getItem('role');
+    if (token && storedRole === 'admin') {
+      router.replace('/admin/dashboard');
+    } else if (token && storedRole === 'student') {
+      router.replace('/student/events');
+    } else {
+      setCheckingAuth(false);
+    }
+  }, [router]);
+
+  if (checkingAuth) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   const handleRoleChange = (selectedRole: string): void => {
     setRole(selectedRole);
   };

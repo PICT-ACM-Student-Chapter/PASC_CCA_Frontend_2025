@@ -1,18 +1,19 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { RoleToggle } from "@/components/auth/RoleToggle";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useAuthStore } from "@/lib/store";
 import { Department, IUser } from "@/types/auth";
 import { IAdmin } from "@/types/auth";
 import { authAPI } from "@/lib/api";
 
 export default function Signup() {
-
+  const router = useRouter();
   const [role, setRole] = useState("student");
   const [firstName, setFirstName] = useState("");
   const [surname, setSurname] = useState("");
@@ -27,9 +28,30 @@ export default function Signup() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [checkingAuth, setCheckingAuth] = useState<boolean>(true);
 
   const { setAuth } = useAuthStore();
 
+  // Redirect already-authenticated users away from the signup page
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const storedRole = localStorage.getItem('role');
+    if (token && storedRole === 'admin') {
+      router.replace('/admin/dashboard');
+    } else if (token && storedRole === 'student') {
+      router.replace('/student/events');
+    } else {
+      setCheckingAuth(false);
+    }
+  }, [router]);
+
+  if (checkingAuth) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   const handleRoleChange = (selectedRole: string) => {
     setRole(selectedRole);

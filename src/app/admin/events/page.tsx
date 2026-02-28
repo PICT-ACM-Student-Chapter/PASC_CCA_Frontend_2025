@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar } from "lucide-react";
+import { Calendar, Search } from "lucide-react";
 import { EventsList } from "@/components/admin/event-list";
 import { useFetchEventsForAdmin } from "@/hooks/events";
 import { EventStatus } from "@/types/events";
@@ -11,9 +11,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const AdminEventsPage = () => {
     const [activeTab, setActiveTab] = useState("ALL EVENTS");
+    const [searchQuery, setSearchQuery] = useState("");
 
-    // Use the hook to fetch events
-    const { events, loading, error } = useFetchEventsForAdmin();
+    // Search is sent to backend — filtering happens in the database, not the browser
+    const { events, loading, error } = useFetchEventsForAdmin(searchQuery);
 
     if (loading) {
         return (
@@ -54,6 +55,28 @@ const AdminEventsPage = () => {
                     <p className="text-muted-foreground mt-1">
                         View, edit, and monitor all event activities
                     </p>
+                </div>
+
+                {/* Search bar — query is forwarded to the backend */}
+                <div className="mb-6 relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5" />
+                    <input
+                        id="admin-event-search"
+                        type="text"
+                        placeholder="Search events by title or description..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full pl-10 pr-10 py-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    />
+                    {searchQuery && (
+                        <button
+                            onClick={() => setSearchQuery("")}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                            aria-label="Clear search"
+                        >
+                            ✕
+                        </button>
+                    )}
                 </div>
 
                 {/* Events Section */}

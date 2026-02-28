@@ -18,7 +18,7 @@ export function AnnouncementList() {
 
   const fetchAnnouncements = async () => {
     try {
-      const response = await announcementAPI.getAll({ limit: 20, includeRead: true });
+      const response = await announcementAPI.getAll({ limit: 20 });
       if (response.data?.success && response.data.data) {
         setAnnouncements(response.data.data as Announcement[]);
       }
