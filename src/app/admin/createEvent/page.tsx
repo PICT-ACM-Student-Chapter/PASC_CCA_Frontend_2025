@@ -109,13 +109,9 @@ const Page: React.FC = () => {
     try {
       const numDays = calculateNumDays(startDate, endDate);
 
-      // Create dates explicitly from input (YYYY-MM-DD) to avoid locale parsing issues
-      const [startYear, startMonth, startDay] = startDate.split('-').map(Number);
-      const [endYear, endMonth, endDay] = endDate.split('-').map(Number);
-
-      // Create UTC date objects set to noon to avoid timezone shifts
-      const startDateObj = new Date(Date.UTC(startYear, startMonth - 1, startDay, 12, 0, 0));
-      const endDateObj = new Date(Date.UTC(endYear, endMonth - 1, endDay, 12, 0, 0));
+      // Create local date objects at the exact start (00:00:00) and end (23:59:59) of the day
+      const startDateObj = new Date(startDate + 'T00:00:00');
+      const endDateObj = new Date(endDate + 'T23:59:59');
 
       const payload = {
         ...formData,

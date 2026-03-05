@@ -31,10 +31,14 @@ export default function SessionManagementPage({
   const router = useRouter();
   const [eventId, setEventId] = useState<number>(0);
   const [eventTitle, setEventTitle] = useState<string>('');
+  const [eventStartDate, setEventStartDate] = useState<string>(''); // ISO string
+  const [eventEndDate, setEventEndDate] = useState<string>('');   // ISO string
+  const [eventStatus, setEventStatus] = useState<string>('');
   const [sessions, setSessions] = useState<AttendanceSession[]>([]);
   const [loading, setLoading] = useState(true);
   const [showDialog, setShowDialog] = useState(false);
   const [editingSession, setEditingSession] = useState<AttendanceSession | null>(null);
+  const [formError, setFormError] = useState<string>('');
   const [formData, setFormData] = useState({
     sessionName: '',
     location: '',
@@ -57,6 +61,16 @@ export default function SessionManagementPage({
         if (eventResponse.data?.success && eventResponse.data.data) {
           const event = eventResponse.data.data as any;
           setEventTitle(event.title);
+          // Store event date boundaries (convert to local datetime-local format)
+          const toLocalInput = (iso: string) => {
+            const d = new Date(iso);
+            return new Date(d.getTime() - d.getTimezoneOffset() * 60000)
+              .toISOString()
+              .slice(0, 16);
+          };
+          setEventStartDate(toLocalInput(event.startDate));
+          setEventEndDate(toLocalInput(event.endDate));
+          setEventStatus(event.status ?? '');
         }
       } catch (error) {
         console.error('Error fetching event:', error);
@@ -81,9 +95,39 @@ export default function SessionManagementPage({
   };
 
   const handleSubmit = async () => {
+    setFormError('');
+
     if (!formData.startTime) {
-      alert('Please select a start time');
+      setFormError('Please select a start time');
       return;
+    }
+
+    // Client-side date range validation
+    if (eventStartDate && eventEndDate) {
+      const eventStart = new Date(eventStartDate);
+      const eventEnd = new Date(eventEndDate);
+      const sessionStart = new Date(formData.startTime);
+
+      if (sessionStart < eventStart || sessionStart > eventEnd) {
+        setFormError(
+          `Session start time must be within the event range: ${eventStartDate.replace('T', ' ')} – ${eventEndDate.replace('T', ' ')}`
+        );
+        return;
+      }
+
+      if (formData.endTime) {
+        const sessionEnd = new Date(formData.endTime);
+        if (sessionEnd < eventStart || sessionEnd > eventEnd) {
+          setFormError(
+            `Session end time must be within the event range: ${eventStartDate.replace('T', ' ')} – ${eventEndDate.replace('T', ' ')}`
+          );
+          return;
+        }
+        if (sessionEnd <= sessionStart) {
+          setFormError('Session end time must be after the session start time.');
+          return;
+        }
+      }
     }
 
     try {
@@ -105,9 +149,9 @@ export default function SessionManagementPage({
       setShowDialog(false);
       resetForm();
       fetchSessions(eventId);
-    } catch (error) {
-      console.error('Error saving session:', error);
-      alert('Failed to save session. Please try again.');
+    } catch (error: any) {
+      const msg = error?.response?.data?.error || error?.response?.data?.message || 'Failed to save session. Please try again.';
+      setFormError(msg);
     }
   };
 
@@ -148,6 +192,7 @@ export default function SessionManagementPage({
 
   const resetForm = () => {
     setEditingSession(null);
+    setFormError('');
     setFormData({
       sessionName: '',
       location: '',
@@ -187,12 +232,20 @@ export default function SessionManagementPage({
                 setShowDialog(true);
               }}
               className="flex items-center gap-2"
+              disabled={eventStatus === 'COMPLETED'}
+              title={eventStatus === 'COMPLETED' ? 'Cannot create sessions for a completed event' : undefined}
             >
               <Plus className="w-5 h-5" />
               Create Session
             </Button>
           </div>
         </div>
+
+        {eventStatus === 'COMPLETED' && (
+          <div className="rounded-lg border border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-700 px-4 py-3 text-sm text-amber-800 dark:text-amber-300">
+            This event is <strong>completed</strong>. New sessions cannot be created.
+          </div>
+        )}
 
         {/* Sessions List */}
         <div className="bg-card rounded-xl border border-border p-6">
@@ -331,7 +384,9 @@ export default function SessionManagementPage({
                 <Input
                   type="datetime-local"
                   value={formData.startTime}
-                  onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
+                  min={eventStartDate}
+                  max={eventEndDate}
+                  onChange={(e) => { setFormError(''); setFormData({ ...formData, startTime: e.target.value }); }}
                 />
               </div>
               <div>
@@ -339,10 +394,27 @@ export default function SessionManagementPage({
                 <Input
                   type="datetime-local"
                   value={formData.endTime}
-                  onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
+                  min={formData.startTime || eventStartDate}
+                  max={eventEndDate}
+                  onChange={(e) => { setFormError(''); setFormData({ ...formData, endTime: e.target.value }); }}
                 />
               </div>
             </div>
+
+            {/* Date range hint */}
+            {eventStartDate && eventEndDate && (
+              <p className="text-xs text-muted-foreground">
+                Session times must be within event range:{' '}
+                <span className="font-medium">{eventStartDate.replace('T', ' ')}</span>
+                {' '}–{' '}
+                <span className="font-medium">{eventEndDate.replace('T', ' ')}</span>
+              </p>
+            )}
+
+            {/* Validation error */}
+            {formError && (
+              <p className="text-sm text-red-500 font-medium">{formError}</p>
+            )}
 
             <div className="flex items-center gap-2">
               <input

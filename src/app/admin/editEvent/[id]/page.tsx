@@ -75,17 +75,17 @@ const EditEventPage: React.FC = () => {
             'Authorization': `Bearer ${token}`
           }
         });
-        const eventData = response.data;
+        const eventData = response.data.data;
 
         const formatDateForInput = (dateString: string) => {
           if (!dateString) return '';
           const date = new Date(dateString);
           if (isNaN(date.getTime())) return '';
 
-          // Use UTC methods to prevent timezone shifts
-          const year = date.getUTCFullYear();
-          const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-          const day = String(date.getUTCDate()).padStart(2, '0');
+          // Use local methods since the stored date string is already ISO converted from local
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          const day = String(date.getDate()).padStart(2, '0');
 
           return `${year}-${month}-${day}`;
         };
@@ -155,9 +155,9 @@ const EditEventPage: React.FC = () => {
     try {
       const numDays = calculateNumDays(startDate, endDate);
 
-      // Create UTC dates to prevent timezone issues that can cause day/month swap
+      // Create local date objects at the exact start (00:00:00) and end (23:59:59) of the day
       const startDateObj = new Date(startDate + 'T00:00:00');
-      const endDateObj = new Date(endDate + 'T00:00:00');
+      const endDateObj = new Date(endDate + 'T23:59:59');
 
       const payload = {
         ...formData,
