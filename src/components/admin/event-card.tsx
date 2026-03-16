@@ -1,7 +1,5 @@
 import { Event } from "@/types/events";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { BarChart3, Edit, Users, Clock, FolderOpen, Image, Trash2, Loader2 } from "lucide-react";
 import { useState } from "react";
@@ -19,13 +17,12 @@ export const EventCard = ({ onRefresh, ...event }: EventCardProps) => {
 
   const getStatusBadge = (status: Event["status"]) => {
     const variants: Record<string, string> = {
-      UPCOMING: "bg-[var(--color-surface-hover)] text-[var(--color-primary)]",
-      COMPLETED: "bg-[var(--color-surface-hover)] text-[var(--color-primary)]",
-      ONGOING: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+      UPCOMING: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
+      COMPLETED: "bg-[var(--color-primary)]/10 text-[var(--color-primary)]",
+      ONGOING: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
     };
     return (
-      <Badge className={variants[status] || "bg-[var(--color-surface)] text-[var(--color-text-primary)]"}>
-        {status}
+      <Badge className={variants[status] || "bg-[var(--color-surface)] text-[var(--color-text-primary)]"}>        {status}
       </Badge>
     );
   };
@@ -80,89 +77,73 @@ export const EventCard = ({ onRefresh, ...event }: EventCardProps) => {
   };
 
   return (
-    <Card className="mb-4 border border-border shadow-sm hover:shadow-md transition-shadow duration-200 bg-card">
-      <CardContent className="pt-6">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-2">
-              <h3 className="font-semibold text-lg text-foreground">{event.title}</h3>
-              {getStatusBadge(event.status)}
-            </div>
-            <p className="text-sm text-muted-foreground mb-1">
-              {formatDate(event.startDate)} - {formatDate(event.endDate)} • {event.location}
-            </p>
-            <p className="text-sm text-muted-foreground">
-              {event.credits} credits • Capacity: {event.capacity}
-            </p>
+    <div className="mb-4 rounded-2xl sm:rounded-[1.5rem] border border-[var(--color-border)] bg-[var(--color-card)] p-5 sm:p-6 shadow-sm hover:shadow-md transition-shadow duration-300">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div className="flex-1">
+          <div className="flex items-center gap-3 mb-2">
+            <h3 className="font-semibold text-lg text-foreground">{event.title}</h3>
+            {getStatusBadge(event.status)}
           </div>
-          <div className="flex flex-wrap gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => router.push(`/admin/events/${event.id}/analytics`)}
-              className="flex items-center gap-1"
-            >
-              <BarChart3 className="w-4 h-4" />
-              Analytics
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => router.push(`/admin/events/${event.id}/sessions`)}
-              className="flex items-center gap-1"
-            >
-              <Clock className="w-4 h-4" />
-              Sessions
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => router.push(`/admin/events/${event.id}/resources`)}
-              className="flex items-center gap-1"
-            >
-              <FolderOpen className="w-4 h-4" />
-              Resources
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => router.push(`/admin/events/${event.id}/gallery`)}
-              className="flex items-center gap-1"
-            >
-              <Image className="w-4 h-4" />
-              Gallery
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => router.push(`/admin/editEvent/${event.id}`)}
-              className="flex items-center gap-1"
-            >
-              <Edit className="w-4 h-4" />
-              Edit
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => router.push(`/admin/attendance/${event.id}`)}
-              className="flex items-center gap-1"
-            >
-              <Users className="w-4 h-4" />
-              Attendance
-            </Button>
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={handleDelete}
-              disabled={isDeleting}
-              className="flex items-center gap-1 bg-red-500"
-            >
-              {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-              Delete
-            </Button>
-          </div>
+          <p className="text-sm text-muted-foreground mb-1">
+            {formatDate(event.startDate)} - {formatDate(event.endDate)} • {event.location}
+          </p>
+          <p className="text-sm text-muted-foreground">
+            {event.credits} credits • Capacity: {event.capacity}
+          </p>
         </div>
-      </CardContent>
-    </Card>
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => router.push(`/admin/events/${event.id}/analytics`)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface)] text-[var(--color-text-secondary)] text-sm font-medium hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text-primary)] transition-colors"
+          >
+            <BarChart3 className="w-4 h-4" />
+            Analytics
+          </button>
+          <button
+            onClick={() => router.push(`/admin/events/${event.id}/sessions`)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface)] text-[var(--color-text-secondary)] text-sm font-medium hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text-primary)] transition-colors"
+          >
+            <Clock className="w-4 h-4" />
+            Sessions
+          </button>
+          <button
+            onClick={() => router.push(`/admin/events/${event.id}/resources`)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface)] text-[var(--color-text-secondary)] text-sm font-medium hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text-primary)] transition-colors"
+          >
+            <FolderOpen className="w-4 h-4" />
+            Resources
+          </button>
+          <button
+            onClick={() => router.push(`/admin/events/${event.id}/gallery`)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface)] text-[var(--color-text-secondary)] text-sm font-medium hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text-primary)] transition-colors"
+          >
+            <Image className="w-4 h-4" />
+            Gallery
+          </button>
+          <button
+            onClick={() => router.push(`/admin/editEvent/${event.id}`)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface)] text-[var(--color-text-secondary)] text-sm font-medium hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text-primary)] transition-colors"
+          >
+            <Edit className="w-4 h-4" />
+            Edit
+          </button>
+          <button
+            onClick={() => router.push(`/admin/attendance/${event.id}`)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface)] text-[var(--color-text-secondary)] text-sm font-medium hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text-primary)] transition-colors"
+          >
+            <Users className="w-4 h-4" />
+            Attendance
+          </button>
+          <button
+            onClick={handleDelete}
+            disabled={isDeleting}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-red-200 dark:border-red-900/30 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm font-medium hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
   );
 };

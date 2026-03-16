@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import React from "react";
 
 interface StatsCardProps {
   title: string;
@@ -7,13 +7,11 @@ interface StatsCardProps {
 }
 
 export const StatsCard = ({ title, value, Icon }: StatsCardProps) => (
-  <Card className="border-none shadow-sm hover:shadow-md transition-shadow duration-200">
-    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-      <CardTitle className="text-lg font-medium text-muted">{title}</CardTitle>
-      {Icon && <Icon className="size-6 text-muted" />}
-    </CardHeader>
-    <CardContent className="pt-0">
-      <div className="text-4xl font-bold">{value}</div>
-    </CardContent>
-  </Card>
+  <div className="rounded-2xl sm:rounded-[1.5rem] border border-[var(--color-border)] bg-[var(--color-card)] p-5 sm:p-7 flex flex-col items-center justify-center shadow-sm hover:shadow-md transition-shadow duration-300">
+    <div className="flex flex-row items-center justify-between w-full mb-3 sm:mb-4">
+      <span className="text-sm sm:text-base font-medium text-muted-foreground">{title}</span>
+      {Icon && <Icon className="w-5 h-5 text-muted-foreground" />}
+    </div>
+    <div className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">{value}</div>
+  </div>
 );

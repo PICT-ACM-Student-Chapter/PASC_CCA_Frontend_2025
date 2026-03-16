@@ -38,24 +38,24 @@ function DonutChart({
   segments,
   centerLabel,
   centerValue,
-  size = 200,
+  size = 180,
 }: {
   segments: DonutSegment[];
   centerLabel?: string;
   centerValue?: string;
   size?: number;
 }) {
+  const [hoveredSegment, setHoveredSegment] = useState<DonutSegment | null>(null);
   const total = segments.reduce((s, seg) => s + seg.value, 0);
-  const radius = 70;
-  const strokeWidth = 28;
+  const radius = 75;
+  const strokeWidth = 26;
   const circumference = 2 * Math.PI * radius;
   let cumulativeOffset = 0;
 
   return (
-    <div className="relative" style={{ width: size, height: size }}>
-      <svg viewBox="0 0 200 200" className="w-full h-full -rotate-90">
-        {/* background track */}
-        <circle cx="100" cy="100" r={radius} fill="none" stroke="hsl(var(--muted))" strokeWidth={strokeWidth} />
+    <div className="relative group" style={{ width: size, height: size }}>
+      <svg viewBox="0 0 200 200" className="w-full h-full -rotate-90 drop-shadow-sm transition-all duration-300">
+        <circle cx="100" cy="100" r={radius} fill="none" stroke="var(--color-surface-hover)" strokeWidth={strokeWidth} className="opacity-40" />
         {total > 0 &&
           segments
             .filter((s) => s.value > 0)
@@ -77,18 +77,33 @@ function DonutChart({
                   strokeDasharray={`${dashLength} ${dashGap}`}
                   strokeDashoffset={-offset}
                   strokeLinecap="round"
-                  className="transition-all duration-700"
+                  className="transition-all duration-300 hover:opacity-80 cursor-pointer drop-shadow-md"
+                  onMouseEnter={() => setHoveredSegment(seg)}
+                  onMouseLeave={() => setHoveredSegment(null)}
                 />
               );
             })}
       </svg>
       {/* center text */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        {centerValue && (
-          <span className="text-2xl font-bold text-foreground">{centerValue}</span>
-        )}
-        {centerLabel && (
-          <span className="text-sm font-medium text-muted-foreground">{centerLabel}</span>
+      <div className="absolute inset-0 flex flex-col items-center justify-center text-center transition-all duration-300 pointer-events-none">
+        {hoveredSegment ? (
+          <>
+            <span className="text-2xl font-extrabold tracking-tight drop-shadow-sm transition-colors" style={{ color: hoveredSegment.color }}>
+              {hoveredSegment.value}
+            </span>
+            <span className="text-[10px] font-semibold uppercase tracking-wider mt-0.5 transition-colors" style={{ color: hoveredSegment.color }}>
+              {hoveredSegment.label}
+            </span>
+          </>
+        ) : (
+          <>
+            {centerValue && (
+              <span className="text-2xl font-extrabold text-foreground tracking-tight drop-shadow-sm">{centerValue}</span>
+            )}
+            {centerLabel && (
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mt-0.5">{centerLabel}</span>
+            )}
+          </>
         )}
       </div>
     </div>
@@ -464,13 +479,13 @@ export default function StudentDashboard() {
                       >
                         {/* Rank badge */}
                         <div
-                          className={`flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold ${index === 0
-                            ? 'bg-yellow-500/15 text-[#ffdb00]'
-                            : index === 1
-                              ? 'bg-slate-500/24 text-[#5e5e5e]'
-                              : index === 2
-                                ? 'bg-orange-500/16 text-[#aa5600]'
-                                : 'bg-[var(--color-surface-hover)] text-[var(--color-text-primary)]'
+                          className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center text-[15px] font-extrabold border transition-all ${index === 0
+                              ? 'bg-[#ffe44d] border-[#e6be00] text-[#8a7200]' // 1st (Solid Gold Base)
+                              : index === 1
+                                ? 'bg-[#e2e8f0] border-[#cbd5e1] text-[#475569]' // 2nd (Solid Silver/Slate)
+                                : index === 2
+                                  ? 'bg-[#ffedd5] border-[#fdba74] text-[#9a3412]' // 3rd (Solid Bronze)
+                                  : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-muted)] opacity-80' // Others (Subdued)
                             }`}
                         >
                           {entry.rank}

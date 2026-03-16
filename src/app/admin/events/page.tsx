@@ -1,17 +1,17 @@
 "use client";
 
 import React, { useState } from "react";
-import { Card, CardHeader } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, Search } from "lucide-react";
+import { Calendar, Search, Plus } from "lucide-react";
 import { EventsList } from "@/components/admin/event-list";
 import { useFetchEventsForAdmin } from "@/hooks/events";
+import { useRouter } from "next/navigation";
 import { EventStatus } from "@/types/events";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const AdminEventsPage = () => {
     const [activeTab, setActiveTab] = useState("ALL EVENTS");
     const [searchQuery, setSearchQuery] = useState("");
+    const router = useRouter();
 
     // Search is sent to backend — filtering happens in the database, not the browser
     const { events, loading, error } = useFetchEventsForAdmin(searchQuery);
@@ -47,14 +47,23 @@ const AdminEventsPage = () => {
         <div className="min-h-screen p-6 bg-background">
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
-                        <Calendar className="w-8 h-8 text-primary" />
-                        Manage Events
-                    </h1>
-                    <p className="text-muted-foreground mt-1">
-                        View, edit, and monitor all event activities
-                    </p>
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                    <div>
+                        <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+                            <Calendar className="w-8 h-8 text-primary" />
+                            Manage Events
+                        </h1>
+                        <p className="text-muted-foreground mt-1">
+                            View, edit, and monitor all event activities
+                        </p>
+                    </div>
+                    <button
+                        onClick={() => router.push("/admin/createEvent")}
+                        className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold border border-transparent bg-[var(--color-button-primary)] text-white hover:bg-[var(--color-button-primary-hover)] transition-all shadow-md hover:shadow-lg active:scale-95 whitespace-nowrap"
+                    >
+                        <Plus className="h-4 w-4" />
+                        Create Event
+                    </button>
                 </div>
 
                 {/* Search bar — query is forwarded to the backend */}
@@ -80,33 +89,32 @@ const AdminEventsPage = () => {
                 </div>
 
                 {/* Events Section */}
-                <Card className="border border-border bg-card shadow-sm rounded-xl overflow-hidden">
-                    <CardHeader className="p-0">
-                        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                            <div className="bg-accent/50 p-4 border-b border-border">
-                                <TabsList className="grid w-full max-w-2xl grid-cols-4 bg-background/50 border border-border">
-                                    {["ALL EVENTS", "UPCOMING", "ONGOING", "COMPLETED"].map((tab) => (
-                                        <TabsTrigger
-                                            key={tab}
-                                            value={tab}
-                                            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                                        >
-                                            {tab.replace("ALL EVENTS", "All")}
-                                        </TabsTrigger>
-                                    ))}
-                                </TabsList>
-                            </div>
+                <div className="rounded-2xl sm:rounded-[1.5rem] border border-[var(--color-border)] bg-[var(--color-card)] p-5 sm:p-6 shadow-sm hover:shadow-md transition-shadow duration-300">
+                    {/* Tab Pills */}
+                    <div className="w-full grid grid-cols-2 lg:grid-cols-4 gap-2.5 md:gap-3 items-center mb-6">
+                        {["ALL EVENTS", "UPCOMING", "ONGOING", "COMPLETED"].map((tab) => (
+                            <button
+                                key={tab}
+                                onClick={() => setActiveTab(tab)}
+                                className={`w-full px-4 py-3 rounded-xl text-sm font-semibold tracking-[0.01em] text-center whitespace-nowrap transition-all ${
+                                    activeTab === tab
+                                        ? "bg-[var(--color-button-primary)] text-white shadow-sm ring-1 ring-[var(--color-button-primary)]"
+                                        : "bg-[var(--color-surface)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)] border border-[var(--color-border-light)]"
+                                }`}
+                            >
+                                {tab === "ALL EVENTS" ? "All" : tab}
+                            </button>
+                        ))}
+                    </div>
 
-                            <div className="p-6">
-                                {["ALL EVENTS", "UPCOMING", "ONGOING", "COMPLETED"].map((status) => (
-                                    <TabsContent key={status} value={status} className="mt-0">
-                                        <EventsList events={events} filterStatus={status as EventStatus} />
-                                    </TabsContent>
-                                ))}
-                            </div>
-                        </Tabs>
-                    </CardHeader>
-                </Card>
+                    <div className="mt-0">
+                        {["ALL EVENTS", "UPCOMING", "ONGOING", "COMPLETED"].map((status) => (
+                            activeTab === status && (
+                                <EventsList key={status} events={events} filterStatus={status as EventStatus} />
+                            )
+                        ))}
+                    </div>
+                </div>
             </div>
         </div>
     );
