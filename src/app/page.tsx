@@ -1,99 +1,80 @@
 "use client";
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { 
   Calendar, 
   Trophy, 
-  Users, 
-  TrendingUp, 
   Award, 
-  Clock, 
-  Star, 
-  ArrowRight, 
-  CheckCircle, 
-  Sparkles, 
-  Zap, 
-  Target, 
-  Shield, 
-  QrCode, 
-  BarChart3, 
-  MessageSquare, 
-  Bell, 
-  Github, 
-  Twitter, 
-  Instagram, 
-  Mail, 
   ChevronRight, 
-  GraduationCap 
+  GraduationCap,
+  Megaphone,
+  ArrowRight,
+  QrCode,
+  Star,
+  BarChart3,
+  ShieldCheck,
+  Bell,
+  Target,
+  Clock,
+  TrendingUp,
+  Sparkles,
+  Twitter,
+  Instagram,
+  Github,
+  Mail,
+  Users,
+  CheckCircle2,
+  Zap,
+  Shield,
+  Activity
 } from 'lucide-react';
-import { motion, useInView, useMotionValue, useTransform, animate } from 'framer-motion';
+import { motion } from 'framer-motion';
 import Link from 'next/link';
 
-// Animated counter hook
-function useAnimatedCounter(target: number, duration: number = 2) {
-  const [count, setCount] = useState(0);
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
+// Smooth Typewriter Hook Component
+function Typewriter({ words, delay = 120, pause = 2200 }: { words: string[]; delay?: number; pause?: number }) {
+  const [index, setIndex] = useState(0);
+  const [subIndex, setSubIndex] = useState(0);
+  const [reverse, setReverse] = useState(false);
 
   useEffect(() => {
-    if (isInView) {
-      let startTime: number;
-      const step = (timestamp: number) => {
-        if (!startTime) startTime = timestamp;
-        const progress = Math.min((timestamp - startTime) / (duration * 1000), 1);
-        setCount(Math.floor(progress * target));
-        if (progress < 1) {
-          requestAnimationFrame(step);
-        }
-      };
-      requestAnimationFrame(step);
+    if (subIndex === words[index].length + 1 && !reverse) {
+      const timeout = setTimeout(() => setReverse(true), pause);
+      return () => clearTimeout(timeout);
     }
-  }, [isInView, target, duration]);
 
-  return { count, ref };
-}
+    if (subIndex === 0 && reverse) {
+      setReverse(false);
+      setIndex((prev) => (prev + 1) % words.length);
+      return;
+    }
 
-// Floating shapes component for background decoration
-function FloatingShapes() {
+    const timeout = setTimeout(() => {
+      setSubIndex((prev) => prev + (reverse ? -1 : 1));
+    }, reverse ? delay / 2 : delay);
+
+    return () => clearTimeout(timeout);
+  }, [subIndex, index, reverse, words, delay, pause]);
+
+  const currentText = words[index].substring(0, subIndex);
+
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      <motion.div
-        className="absolute top-20 left-[10%] w-72 h-72 bg-[#2BA6DF]/10 dark:bg-[#55B8E5]/5 rounded-full blur-3xl"
-        animate={{
-          y: [0, 30, 0],
-          scale: [1, 1.1, 1],
-        }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.div
-        className="absolute top-40 right-[15%] w-96 h-96 bg-[#134467]/10 dark:bg-[#2BA6DF]/5 rounded-full blur-3xl"
-        animate={{
-          y: [0, -40, 0],
-          scale: [1, 1.15, 1],
-        }}
-        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.div
-        className="absolute bottom-40 left-[20%] w-64 h-64 bg-[#FDB811]/10 dark:bg-[#FDB811]/5 rounded-full blur-3xl"
-        animate={{
-          x: [0, 30, 0],
-          scale: [1, 1.1, 1],
-        }}
-        transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-      />
-    </div>
+    <span className="inline-flex items-center text-[var(--color-primary)] min-h-[1.2em] leading-tight font-extrabold">
+      <span>{currentText || "\u00A0"}</span>
+      <span className="inline-block w-[3px] h-[0.85em] bg-[var(--color-primary)] ml-1 align-middle animate-pulse shrink-0 rounded-full" />
+    </span>
   );
 }
 
-// Grid pattern background
+// Background Grid Pattern
 function GridPattern() {
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-30 dark:opacity-20">
+    <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20 dark:opacity-10">
       <div 
         className="absolute inset-0" 
         style={{ 
-          backgroundImage: `linear-gradient(rgba(43, 166, 223, 0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(43, 166, 223, 0.08) 1px, transparent 1px)`,
+          backgroundImage: `linear-gradient(var(--color-primary) 1px, transparent 1px), linear-gradient(90deg, var(--color-primary) 1px, transparent 1px)`,
           backgroundSize: '60px 60px' 
         }} 
       />
@@ -101,405 +82,283 @@ function GridPattern() {
   );
 }
 
+// Soft floating glow background element
+function GlowDecoration() {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <motion.div
+        className="absolute top-10 left-[12%] w-80 h-80 bg-[var(--color-primary)]/15 rounded-full blur-3xl"
+        animate={{
+          y: [0, 25, 0],
+          scale: [1, 1.08, 1],
+        }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div
+        className="absolute top-36 right-[12%] w-96 h-96 bg-[#134467]/15 dark:bg-[var(--color-primary)]/10 rounded-full blur-3xl"
+        animate={{
+          y: [0, -35, 0],
+          scale: [1, 1.12, 1],
+        }}
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+      />
+    </div>
+  );
+}
+
 export default function Home() {
   const router = useRouter();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userRole, setUserRole] = useState<string | null>(null);
 
-  // If already logged in, redirect to the appropriate dashboard
+  // Check login and role
   useEffect(() => {
     const token = localStorage.getItem('token');
     const role = localStorage.getItem('role');
-    if (token && role === 'admin') {
-      router.replace('/admin/dashboard');
-    } else if (token && role === 'student') {
-      router.replace('/student/dashboard');
+    if (token && role) {
+      setIsLoggedIn(true);
+      setUserRole(role);
     }
-  }, [router]);
-
-  const features = [
-    { 
-      icon: <Calendar className="w-7 h-7" />, 
-      title: "Event Discovery", 
-      description: "Browse curated co-curricular activities and never miss an opportunity to grow", 
-      color: "from-[#2BA6DF] to-[#6BC1E9]", 
-      bgColor: "bg-[#2BA6DF]/10 dark:bg-[#2BA6DF]/20" 
-    },
-    { 
-      icon: <Trophy className="w-7 h-7" />, 
-      title: "Compete & Excel", 
-      description: "Rise through the ranks on dynamic leaderboards and earn recognition", 
-      color: "from-[#FDB811] to-[#E5A50F]", 
-      bgColor: "bg-amber-500/10 dark:bg-amber-500/20" 
-    },
-    { 
-      icon: <Award className="w-7 h-7" />, 
-      title: "Credit Tracking", 
-      description: "Automatic credit calculation with real-time progress monitoring", 
-      color: "from-[#10B981] to-[#059669]", 
-      bgColor: "bg-emerald-500/10 dark:bg-emerald-500/20" 
-    },
-    { 
-      icon: <Users className="w-7 h-7" />, 
-      title: "Community Hub", 
-      description: "Connect with peers across departments and build lasting networks", 
-      color: "from-[#134467] to-[#55B8E5]", 
-      bgColor: "bg-primary/10 dark:bg-primary/20" 
-    }
-  ];
+  }, []);
 
   const benefits = [
-    { icon: <QrCode className="w-5 h-5" />, text: "QR-based attendance tracking" },
-    { icon: <BarChart3 className="w-5 h-5" />, text: "Comprehensive analytics dashboard" },
-    { icon: <MessageSquare className="w-5 h-5" />, text: "Event reviews and ratings" },
-    { icon: <Shield className="w-5 h-5" />, text: "Secure and reliable platform" },
-    { icon: <Bell className="w-5 h-5" />, text: "Real-time push notifications" },
-    { icon: <Target className="w-5 h-5" />, text: "Goal setting and milestones" }
+    { icon: <QrCode className="w-4 h-4 text-[var(--color-primary)]" />, text: "QR-based attendance tracking" },
+    { icon: <BarChart3 className="w-4 h-4 text-emerald-500" />, text: "Comprehensive analytics dashboard" },
+    { icon: <Star className="w-4 h-4 text-amber-500" />, text: "Event reviews and ratings" },
+    { icon: <ShieldCheck className="w-4 h-4 text-blue-500" />, text: "Secure and reliable platform" },
+    { icon: <Bell className="w-4 h-4 text-purple-500" />, text: "Real-time push notifications" },
+    { icon: <Target className="w-4 h-4 text-rose-500" />, text: "Goal setting and milestones" }
   ];
 
-  const stats = [
-    { label: "Active Events", value: 50, suffix: "+", icon: <Calendar className="w-6 h-6" /> },
-    { label: "Students", value: 1000, suffix: "+", icon: <Users className="w-6 h-6" /> },
-    { label: "Credits Earned", value: 5000, suffix: "+", icon: <Award className="w-6 h-6" /> },
-    { label: "Departments", value: 5, suffix: "", icon: <TrendingUp className="w-6 h-6" /> }
+  const coreFeatures = [
+    {
+      icon: <QrCode className="w-6 h-6 text-[var(--color-primary)]" />,
+      title: "QR Attendance & Verification",
+      description: "Seamless check-ins for sessions with instant unique QR scanning and automated validation."
+    },
+    {
+      icon: <Trophy className="w-6 h-6 text-amber-500" />,
+      title: "Division & Semester Leaderboards",
+      description: "Compete with peers across departments, track credit milestones, and earn top ranks."
+    },
+    {
+      icon: <BarChart3 className="w-6 h-6 text-emerald-500" />,
+      title: "Credit & Progress Analytics",
+      description: "Gain full visibility into earned credits, session history, and activity achievements."
+    },
+    {
+      icon: <Bell className="w-6 h-6 text-purple-500" />,
+      title: "Instant Alerts & Reminders",
+      description: "Stay ahead with real-time push notifications for upcoming events, RSVPs, and updates."
+    }
   ];
 
   return (
-    <div className="min-h-screen bg-background overflow-hidden">
-      {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center">
-        <FloatingShapes />
-        <GridPattern />
-        
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Left Column - Content */}
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.7, ease: "easeOut" }}
-            >
-              {/* Badge */}
+    <div className="min-h-screen bg-background text-[var(--color-text-primary)] overflow-hidden flex flex-col justify-between transition-colors">
+      <div>
+        {/* Hero Section */}
+        <section className="relative py-16 sm:py-20 lg:py-24">
+          <GlowDecoration />
+          <GridPattern />
+
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+              
+              {/* Left Column - Headline & CTA */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#2BA6DF]/10 to-[#134467]/10 dark:from-[#2BA6DF]/20 dark:to-[#55B8E5]/20 border border-[#2BA6DF]/30 dark:border-[#55B8E5]/30 rounded-full mb-8"
+                transition={{ duration: 0.6, ease: "easeOut" }}
+                className="space-y-6 sm:space-y-8 text-left"
               >
-                <Sparkles className="w-4 h-4 text-[var(--color-primary)]" />
-                <span className="text-sm font-semibold bg-gradient-to-r from-[#134467] to-[#2BA6DF] dark:from-[#55B8E5] dark:to-[#6BC1E9] bg-clip-text text-transparent">
-                  PASC CCA Platform 2025
-                </span>
-              </motion.div>
-
-              {/* Headline */}
-              <motion.h1
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.0, duration: 0.0 }}
-                className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-[1.1] tracking-tight"
-              >
-                Where Students{" "}
-                <span className="block mt-2">
-                  <span className="bg-gradient-to-r from-[#134467] via-[#2BA6DF] to-[#134467] bg-[length:200%_auto] animate-gradient bg-clip-text text-transparent">
-                    Become Achievers
-                  </span>
-                </span>
-              </motion.h1>
-
-              {/* Description */}
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4, duration: 0.6 }}
-                className="text-lg sm:text-xl text-[var(--color-text-muted)] mb-8 max-w-xl leading-relaxed"
-              >
-                Your one-stop platform for discovering events, tracking credits, and competing with peers. Transform your college journey into an adventure of growth and achievement.
-              </motion.p>
-
-              {/* CTA Buttons */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5, duration: 0.6 }}
-                className="flex flex-col sm:flex-row gap-4"
-              >
-                {/* Get Started Button Removed for Closed Review */}
-                
-                <button
-                  onClick={() => router.push('/auth/login')}
-                  className="group px-8 py-4 bg-[var(--color-card)] border-2 border-[var(--color-border)] text-[var(--color-text-primary)] rounded-xl font-semibold text-lg hover:border-primary dark:hover:border-primary hover:bg-[var(--color-surface-hover)] dark:hover:bg-[#263238] transition-all duration-300"
-                >
-                  <span className="flex items-center justify-center gap-2">
-                    Sign In
-                    <ChevronRight className="w-5 h-5 text-[var(--color-text-muted)] group-hover:text-[var(--color-primary)] transition-colors" />
-                  </span>
-                </button>
-              </motion.div>
-
-              {/* Social Proof */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.7, duration: 0.6 }}
-                className="flex items-center gap-4 mt-10"
-              >
-                <div className="flex -space-x-3">
-                  {[...Array(4)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="w-10 h-10 rounded-full border-2 border-[var(--color-card)] bg-gradient-to-br from-[#2BA6DF] to-[#134467] flex items-center justify-center text-white text-xs font-bold"
-                    >
-                      {String.fromCharCode(65 + i)}
-                    </div>
-                  ))}
+                {/* Main Headline with Typewriter Animation */}
+                <div className="space-y-3">
+                  <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-[var(--color-text-primary)] tracking-tight leading-[1.12]">
+                    Where Learning Meets{" "}
+                    <span className="block mt-2 sm:mt-3 text-2xl sm:text-4xl lg:text-5xl font-extrabold min-h-[3rem] sm:min-h-[4rem] flex items-center">
+                      <Typewriter 
+                        words={[
+                          "Achievement & Growth", 
+                          "Student Excellence", 
+                          "Campus Leadership", 
+                          "Co-Curricular Success"
+                        ]} 
+                      />
+                    </span>
+                  </h1>
                 </div>
-                <div className="text-sm text-[var(--color-text-muted)]">
-                  <span className="font-semibold text-[hsl(var(--mini-text))]">1000+</span> students already registered
-                </div>
-              </motion.div>
-            </motion.div>
 
-            {/* Right Column - Visual */}
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.7, delay: 0.3, ease: "easeOut" }}
-              className="relative hidden lg:block"
-            >
-              {/* Main Card Stack */}
-              <div className="relative">
-                {/* Background glow */}
-                <div className="absolute inset-0 bg-gradient-to-r from-[#2BA6DF]/20 to-[#134467]/20 blur-3xl" />
-
-                {/* Stats Card */}
-                <motion.div
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.6 }}
-                  className="relative bg-[var(--color-card)] rounded-2xl shadow-2xl p-6 mb-6 border border-[var(--color-border-light)]"
-                >
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="p-3 bg-[var(--color-surface-hover)] rounded-xl">
-                      <GraduationCap className="w-8 h-8 text-[var(--color-primary)]" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-[var(--color-text-primary)] text-lg">Your Progress</h3>
-                      <p className="text-[var(--color-text-muted)] text-sm">Spring Semester 2025</p>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <div>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span className="text-[var(--color-text-muted)]">Credits Earned</span>
-                        <span className="font-semibold text-[var(--color-text-primary)]">24/30</span>
-                      </div>
-                      <div className="h-2 bg-[var(--color-surface)] rounded-full overflow-hidden">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: "80%" }}
-                          transition={{ delay: 0.8, duration: 1, ease: "easeOut" }}
-                          className="h-full bg-gradient-to-r from-[#2BA6DF] to-[#134467] rounded-full"
-                        />
-                      </div>
-                    </div>
-                    
-                    <div className="flex gap-4 pt-2">
-                      <div className="flex-1 text-center p-3 bg-[var(--color-surface)] rounded-xl">
-                        <div className="text-2xl font-bold text-[var(--color-text-primary)]">12</div>
-                        <div className="text-xs text-[var(--color-text-muted)]">Events</div>
-                      </div>
-                      <div className="flex-1 text-center p-3 bg-[var(--color-surface)] rounded-xl">
-                        <div className="text-2xl font-bold text-[var(--color-text-primary)]">#5</div>
-                        <div className="text-xs text-[var(--color-text-muted)]">Rank</div>
-                      </div>
-                      <div className="flex-1 text-center p-3 bg-[var(--color-surface)] rounded-xl">
-                        <div className="text-2xl font-bold text-[#10B981] dark:text-[#34D399]">+8</div>
-                        <div className="text-xs text-[var(--color-text-muted)]">This Week</div>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-
-                {/* Event Card */}
-                <motion.div
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.8 }}
-                  className="relative bg-gradient-to-br from-[#134467] to-[#2BA6DF] rounded-2xl shadow-2xl p-6 text-white ml-8"
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <span className="inline-block px-3 py-1 bg-[var(--color-card)]/20 rounded-full text-xs font-medium mb-2">
-                        Upcoming Event
-                      </span>
-                      <h3 className="font-bold text-xl">Tech Hackathon 2025</h3>
-                      <p className="text-white/70 text-sm">Build the future in 48 hours</p>
-                    </div>
-                    <div className="p-2 bg-[var(--color-card)]/10 rounded-lg">
-                      <Zap className="w-6 h-6" />
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-4 text-sm">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-white/70" />
-                      <span>Jan 15, 2025</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4 text-white/70" />
-                      <span>120 registered</span>
-                    </div>
-                  </div>
-                  
-                  <div className="mt-4 flex items-center gap-2">
-                    <div className="flex -space-x-2">
-                      {[...Array(3)].map((_, i) => (
-                        <div key={i} className="w-8 h-8 rounded-full bg-[var(--color-card)]/20 border-2 border-white/20" />
-                      ))}
-                    </div>
-                    <span className="text-sm text-white/70">+117 more</span>
-                  </div>
-                </motion.div>
-
-                {/* Floating Achievement Badge */}
-                <motion.div
-                  initial={{ scale: 0, rotate: -10 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  transition={{ delay: 1, type: "spring", stiffness: 200 }}
-                  className="absolute -top-4 -right-4 bg-[#FDB811] text-[#263238] p-3 rounded-xl shadow-lg"
-                >
-                  <Trophy className="w-6 h-6" />
-                </motion.div>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section className="py-16 bg-[var(--color-card)]/60 backdrop-blur-sm border-y border-[var(--color-border-light)]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => {
-              const { count, ref } = useAnimatedCounter(stat.value);
-              return (
-                <motion.div
-                  key={index}
-                  ref={ref}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  className="text-center group"
-                >
-                  <div className="inline-flex items-center justify-center w-14 h-14 mb-4 bg-gradient-to-br from-[#ECEFF1] to-[#F5F5F5] dark:from-[#263238] dark:to-[#37474F] rounded-xl text-[var(--color-primary)] group-hover:scale-110 transition-transform duration-300">
-                    {stat.icon}
-                  </div>
-                  <div className="text-4xl font-bold text-[var(--color-text-primary)] mb-1">
-                    {count}{stat.suffix}
-                  </div>
-                  <div className="text-[hsl(var(--mini-text))] font-medium">
-                    {stat.label}
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="py-24 relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <span className="inline-block px-4 py-2 bg-[var(--color-surface-hover)]/30 text-[var(--color-primary)] rounded-full text-sm font-semibold mb-4">
-              Features
-            </span>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[var(--color-text-primary)] mb-4">
-              Everything You Need to{" "}
-              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#134467] to-[#2BA6DF]">
-                Excel in Activities
-              </span>
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              A comprehensive platform designed with students in mind
-            </p>
-          </motion.div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((feature, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={{ y: -8 }}
-                className="group relative bg-[var(--color-card)] rounded-2xl p-6 shadow-lg shadow-[var(--color-border)]/30 dark:shadow-none border border-[var(--color-border-light)] hover:shadow-xl hover:shadow-[#2BA6DF]/10 transition-all duration-300"
-              >
-                <div className={`w-14 h-14 ${feature.bgColor} rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300`}>
-                  <div className={`bg-gradient-to-r ${feature.color} bg-clip-text`}>
-                    <div className="text-transparent">
-                      {feature.icon}
-                    </div>
-                  </div>
-                  <div className={`absolute bg-gradient-to-r ${feature.color} text-white rounded-xl w-14 h-14 flex items-center justify-center`}>
-                    {feature.icon}
-                  </div>
-                </div>
-                <h3 className="text-xl font-bold text-[var(--color-text-primary)] mb-2">
-                  {feature.title}
-                </h3>
-                <p className="text-[var(--color-text-muted)] leading-relaxed">
-                  {feature.description}
+                {/* Subtitle */}
+                <p className="text-base sm:text-lg text-[var(--color-text-muted)] max-w-xl leading-relaxed font-normal">
+                  Your all-in-one platform for discovering campus events, automated QR attendance, tracking co-curricular credits, and competing on student leaderboards.
                 </p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      {/* Benefits Section */}
-      <section className="py-24 bg-gradient-to-br from-[#F5F5F5] to-[#ECEFF1]/30 dark:from-[#212121] dark:to-[#263238]/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+                {/* Dual Primary Hero CTA Buttons */}
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 pt-2">
+                  <Link
+                    href={isLoggedIn ? (userRole === 'admin' ? '/admin/dashboard' : '/student/dashboard') : '/auth/login'}
+                    className="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl bg-[var(--color-button-primary)] hover:bg-[var(--color-button-primary-hover)] text-white font-extrabold text-base shadow-lg shadow-[var(--color-primary)]/20 hover:shadow-xl hover:shadow-[var(--color-primary)]/35 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
+                  >
+                    <span>{isLoggedIn ? "Go to Dashboard" : "Get Started Now"}</span>
+                    <ArrowRight className="w-5 h-5" />
+                  </Link>
+
+                  <Link
+                    href="/student/events"
+                    className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[var(--color-card)] border border-[var(--color-border)] hover:border-[var(--color-primary)]/50 text-[var(--color-text-primary)] font-bold text-base hover:bg-[var(--color-surface)] shadow-sm hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
+                  >
+                    <Calendar className="w-5 h-5 text-[var(--color-primary)]" />
+                    <span>Explore Events</span>
+                  </Link>
+                </div>
+
+                {/* Micro trust indicators */}
+                <div className="flex items-center gap-6 pt-2 text-xs font-semibold text-[var(--color-text-muted)]">
+                  <span className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Instant QR Check-in
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <ShieldCheck className="w-4 h-4 text-[var(--color-primary)]" /> Verified Credits
+                  </span>
+                </div>
+              </motion.div>
+
+              {/* Right Column - Live App Feature Showcase Card */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.96 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="relative"
+              >
+                <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6 sm:p-8 shadow-xl space-y-6 transition-colors">
+                  {/* Card Header */}
+                  <div className="flex items-center justify-between pb-4 border-b border-[var(--color-border)]">
+                    <div className="flex items-center gap-3">
+                      <div className="w-11 h-11 rounded-xl bg-[var(--color-primary)]/10 border border-[var(--color-primary)]/20 flex items-center justify-center">
+                        <GraduationCap className="w-6 h-6 text-[var(--color-primary)]" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-[var(--color-text-primary)] text-base leading-tight">PASC CCA Student Portal</h3>
+                        <p className="text-xs text-[var(--color-text-muted)]">Live Activity Hub</p>
+                      </div>
+                    </div>
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                      Live System
+                    </span>
+                  </div>
+
+                  {/* Quick Stat Pill Overview */}
+                  <div className="grid grid-cols-3 gap-2.5 p-3 rounded-xl bg-[var(--color-surface)]/60 border border-[var(--color-border-light)] text-center">
+                    <div>
+                      <p className="text-xs font-semibold text-[var(--color-text-muted)]">Credits</p>
+                      <p className="text-base font-extrabold text-[var(--color-primary)]">24 / 30</p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-[var(--color-text-muted)]">Rank</p>
+                      <p className="text-base font-extrabold text-amber-500">#1 Division</p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-[var(--color-text-muted)]">Attendance</p>
+                      <p className="text-base font-extrabold text-emerald-500">98%</p>
+                    </div>
+                  </div>
+
+                  {/* Feature Preview Items */}
+                  <div className="space-y-3.5">
+                    <div className="p-3.5 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface)]/40 flex items-center justify-between hover:border-[var(--color-primary)]/40 transition-all">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2.5 bg-amber-500/10 rounded-lg">
+                          <Trophy className="w-5 h-5 text-amber-500" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-[var(--color-text-primary)]">Semester Leaderboard</p>
+                          <p className="text-xs text-[var(--color-text-muted)]">Real-time division rankings</p>
+                        </div>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-[var(--color-text-muted)]" />
+                    </div>
+
+                    <div className="p-3.5 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface)]/40 flex items-center justify-between hover:border-[var(--color-primary)]/40 transition-all">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2.5 bg-[var(--color-primary)]/10 rounded-lg">
+                          <QrCode className="w-5 h-5 text-[var(--color-primary)]" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-[var(--color-text-primary)]">Automated Event RSVP</p>
+                          <p className="text-xs text-[var(--color-text-muted)]">Unique QR verification</p>
+                        </div>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-[var(--color-text-muted)]" />
+                    </div>
+
+                    <div className="p-3.5 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface)]/40 flex items-center justify-between hover:border-[var(--color-primary)]/40 transition-all">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2.5 bg-emerald-500/10 rounded-lg">
+                          <Award className="w-5 h-5 text-emerald-500" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-[var(--color-text-primary)]">Credit Management</p>
+                          <p className="text-xs text-[var(--color-text-muted)]">Verified activity logs</p>
+                        </div>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-[var(--color-text-muted)]" />
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+            </div>
+          </div>
+        </section>
+
+
+        {/* Why PASC CCA Section - Design Oriented UI Showcase */}
+        <section className="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+            
+            {/* Left Column: Title, Subtitle & Badges Grid */}
             <motion.div
-              initial={{ opacity: 0, x: -30 }}
+              initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="space-y-6"
             >
-              <span className="inline-block px-4 py-2 bg-[var(--color-benefit-bg)] text-[var(--color-benefit-text)] rounded-full text-sm font-semibold mb-4">
-                Why PASC CCA?
-              </span>
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[var(--color-text-primary)] mb-6 leading-tight">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-[var(--color-primary)]/10 border border-[var(--color-primary)]/20 rounded-full">
+                <Sparkles className="w-3.5 h-3.5 text-[var(--color-primary)]" />
+                <span className="text-xs font-extrabold uppercase tracking-wider text-[var(--color-primary)]">
+                  Why Choose PASC CCA?
+                </span>
+              </div>
+              
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[var(--color-text-primary)] leading-tight tracking-tight">
                 Built for Students,{" "}
-                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#FDB811] to-[#2BA6DF]">
+                <span className="block text-[var(--color-primary)]">
                   By Students
                 </span>
               </h2>
-              <p className="text-lg text-[var(--color-text-muted)] mb-8 leading-relaxed">
-                We understand the challenges of managing co-curricular activities. That's why we've built a platform that makes tracking and participating in events effortless and engaging.
+
+              <p className="text-base sm:text-lg text-[var(--color-text-muted)] leading-relaxed">
+                We simplify co-curricular activity tracking, event management, and credit allocation so you can focus on building skills and leadership on campus.
               </p>
-              
-              <div className="grid sm:grid-cols-2 gap-4">
+
+              {/* 6 Value Badges Grid */}
+              <div className="grid sm:grid-cols-2 gap-3.5 pt-2">
                 {benefits.map((benefit, index) => (
                   <motion.div
                     key={index}
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    transition={{ delay: index * 0.08 }}
-                    className="flex items-center gap-3 p-3 bg-[var(--color-card)] rounded-xl shadow-sm border border-[var(--color-border-light)]"
+                    whileHover={{ scale: 1.02, y: -2 }}
+                    transition={{ delay: index * 0.05 }}
+                    className="group flex items-center gap-3 p-3.5 bg-[var(--color-card)] rounded-xl border border-[var(--color-border)] shadow-sm hover:border-[var(--color-primary)]/60 hover:shadow-md transition-all"
                   >
-                    <div className="flex-shrink-0 w-10 h-10 bg-[var(--color-benefit-bg)] rounded-lg flex items-center justify-center text-[var(--color-benefit-text)]">
+                    <div className="flex-shrink-0 w-9 h-9 bg-[var(--color-surface)] border border-[var(--color-border-light)] group-hover:border-[var(--color-primary)]/30 group-hover:bg-[var(--color-primary)]/10 rounded-lg flex items-center justify-center transition-colors">
                       {benefit.icon}
                     </div>
-                    <span className="text-[var(--color-text-secondary)] font-medium text-sm">
+                    <span className="text-[var(--color-text-primary)] font-semibold text-xs sm:text-sm group-hover:text-[var(--color-primary)] transition-colors">
                       {benefit.text}
                     </span>
                   </motion.div>
@@ -507,180 +366,280 @@ export default function Home() {
               </div>
             </motion.div>
 
+            {/* Right Column: 3 Showcase Feature Cards */}
             <motion.div
-              initial={{ opacity: 0, x: 30 }}
+              initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="relative"
+              transition={{ duration: 0.6 }}
+              className="space-y-5"
             >
-              <div className="relative">
-                {/* Decorative elements */}
-                <div className="absolute -inset-4 bg-gradient-to-r from-[#2BA6DF]/20 to-[#134467]/20 rounded-3xl blur-2xl" />
-                
-                {/* Main feature cards */}
-                <div className="relative space-y-4">
-                  <motion.div
-                    whileHover={{ x: 5 }}
-                    className="bg-[var(--color-card)] rounded-2xl p-6 shadow-xl border border-[var(--color-border-light)]"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 bg-[var(--color-surface-hover)] rounded-xl">
-                        <Clock className="w-6 h-6 text-[var(--color-primary)]" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-[var(--color-text-primary)]">Real-time Updates</h4>
-                        <p className="text-[var(--color-text-muted)] text-sm">Instant notifications for events and credits</p>
-                      </div>
-                    </div>
-                  </motion.div>
-                  
-                  <motion.div
-                    whileHover={{ x: 5 }}
-                    className="bg-[var(--color-card)] rounded-2xl p-6 shadow-xl border border-[var(--color-border-light)] ml-6"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 bg-[#134467]/10 dark:bg-[#134467]/20 rounded-xl">
-                        <TrendingUp className="w-6 h-6 text-[var(--color-primary)]" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-[var(--color-text-primary)]">Progress Analytics</h4>
-                        <p className="text-[var(--color-text-muted)] text-sm">Track your journey with detailed insights</p>
-                      </div>
-                    </div>
-                  </motion.div>
-                  
-                  <motion.div
-                    whileHover={{ x: 5 }}
-                    className="bg-[var(--color-card)] rounded-2xl p-6 shadow-xl border border-[var(--color-border-light)]"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 bg-[#FDB811]/15 dark:bg-[#FDB811]/20 rounded-xl">
-                        <Trophy className="w-6 h-6 text-[#FDB811]" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-[var(--color-text-primary)]">Gamified Experience</h4>
-                        <p className="text-[var(--color-text-muted)] text-sm">Compete, earn badges, and level up</p>
-                      </div>
-                    </div>
-                  </motion.div>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
 
-      {/* CTA Section */}
-      <section className="py-24 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-[#134467] to-[#2BA6DF]" />
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDYwIEwgNjAgMCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIiBmaWxsPSJub25lIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-30" />
-        
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <motion.div
-              initial={{ scale: 0 }}
-              whileInView={{ scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
-              className="inline-flex items-center justify-center w-16 h-16 bg-[var(--color-card)]/10 rounded-2xl mb-8"
-            >
-              <Sparkles className="w-8 h-8 text-white" />
-            </motion.div>
-            
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-6">
-              Ready to Transform Your{" "}
-              <span className="block">College Experience?</span>
-            </h2>
-            
-            <p className="text-xl text-[#ECEFF1] mb-10 max-w-2xl mx-auto">
-              Join hundreds of students already using PASC CCA Platform to track their achievements and unlock new opportunities.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              {/* Create Free Account Button Removed for Closed Review */}
-              
-              <button
-                onClick={() => router.push('/auth/login')}
-                className="px-8 py-4 bg-[var(--color-card)]/10 backdrop-blur-sm border-2 border-white/20 text-white rounded-xl font-semibold text-lg hover:bg-[var(--color-card)]/20 transition-all duration-300"
+              {/* Card 1: Real-time Updates */}
+              <motion.div
+                whileHover={{ scale: 1.01 }}
+                className="bg-[var(--color-card)] rounded-2xl p-6 shadow-md border border-[var(--color-border)] hover:border-[var(--color-primary)]/50 hover:shadow-lg transition-all duration-300"
               >
-                Sign In
-              </button>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-[#212121] dark:bg-[#000000] text-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
-            {/* Brand */}
-            <div className="col-span-2 md:col-span-1">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-10 h-10 bg-gradient-to-br from-[#134467] to-[#2BA6DF] rounded-xl flex items-center justify-center">
-                  <GraduationCap className="w-6 h-6 text-white" />
+                <div className="flex items-start gap-4">
+                  <div className="p-3 bg-[var(--color-primary)]/10 border border-[var(--color-primary)]/20 rounded-xl shrink-0">
+                    <Clock className="w-6 h-6 text-[var(--color-primary)]" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <h4 className="font-extrabold text-[var(--color-text-primary)] text-lg">Real-time Updates</h4>
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[11px] font-bold">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+                        Live Sync
+                      </span>
+                    </div>
+                    <p className="text-[var(--color-text-muted)] text-xs sm:text-sm leading-relaxed mb-3">
+                      Instant notifications for session registrations, event alerts, and credit updates.
+                    </p>
+                    
+                    {/* Widget Preview */}
+                    <div className="p-3 rounded-xl bg-[var(--color-surface)]/60 border border-[var(--color-border-light)] flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-7 h-7 rounded-lg bg-[var(--color-primary)]/10 flex items-center justify-center">
+                          <Bell className="w-3.5 h-3.5 text-[var(--color-primary)]" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-[var(--color-text-primary)]">Event RSVP Confirmed</p>
+                          <p className="text-[10px] text-[var(--color-text-muted)]">Automated alert system</p>
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 shrink-0">Just now</span>
+                    </div>
+                  </div>
                 </div>
-                <span className="text-xl font-bold">PASC CCA</span>
-              </div>
-              <p className="text-[#CCCCCC] text-sm leading-relaxed">
-                Empowering students to excel in co-curricular activities through technology.
+              </motion.div>
+
+              {/* Card 2: Progress Analytics */}
+              <motion.div
+                whileHover={{ scale: 1.01 }}
+                className="bg-[var(--color-card)] rounded-2xl p-6 shadow-md border border-[var(--color-border)] hover:border-[var(--color-primary)]/50 hover:shadow-lg transition-all duration-300"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl shrink-0">
+                    <TrendingUp className="w-6 h-6 text-emerald-500" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <h4 className="font-extrabold text-[var(--color-text-primary)] text-lg">Progress Analytics</h4>
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[11px] font-bold">
+                        80% Goal
+                      </span>
+                    </div>
+                    <p className="text-[var(--color-text-muted)] text-xs sm:text-sm leading-relaxed mb-3">
+                      Track your credit milestones with comprehensive charts and visual breakdown.
+                    </p>
+
+                    {/* Progress Bar & Metric Widget */}
+                    <div className="p-3 rounded-xl bg-[var(--color-surface)]/60 border border-[var(--color-border-light)] space-y-2">
+                      <div className="flex justify-between items-center text-xs font-bold">
+                        <span className="text-[var(--color-text-muted)]">Semester Target</span>
+                        <span className="text-[var(--color-text-primary)]">24 / 30 Credits</span>
+                      </div>
+                      <div className="h-2.5 bg-[var(--color-surface-hover)] rounded-full overflow-hidden p-0.5 border border-[var(--color-border-light)]">
+                        <motion.div 
+                          className="h-full bg-gradient-to-r from-[var(--color-primary)] via-[#2BA6DF] to-[#134467] rounded-full"
+                          initial={{ width: "0%" }}
+                          whileInView={{ width: "80%" }}
+                          transition={{ duration: 1 }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Card 3: Gamified Experience */}
+              <motion.div
+                whileHover={{ scale: 1.01 }}
+                className="bg-[var(--color-card)] rounded-2xl p-6 shadow-md border border-[var(--color-border)] hover:border-[var(--color-primary)]/50 hover:shadow-lg transition-all duration-300"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl shrink-0">
+                    <Trophy className="w-6 h-6 text-amber-500" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <h4 className="font-extrabold text-[var(--color-text-primary)] text-lg">Gamified Experience</h4>
+                      <span className="px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-[11px] font-bold">
+                        #1 Rank
+                      </span>
+                    </div>
+                    <p className="text-[var(--color-text-muted)] text-xs sm:text-sm leading-relaxed mb-3">
+                      Earn badges, climb rankings, and celebrate your co-curricular achievements.
+                    </p>
+
+                    {/* Achievement Badges Gallery Widget */}
+                    <div className="p-2.5 rounded-xl bg-[var(--color-surface)]/60 border border-[var(--color-border-light)] flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        {[
+                          { title: "First Steps", src: "/first-steps.png" },
+                          { title: "Getting Started", src: "/getting-started.png" },
+                          { title: "Dedicated Learner", src: "/dedicated-learner.png" },
+                          { title: "Credit Master", src: "/credit-master.png" }
+                        ].map((b, i) => (
+                          <div 
+                            key={i} 
+                            title={b.title}
+                            className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[var(--color-card)] border border-[var(--color-border-light)] p-1 flex items-center justify-center transition-transform hover:scale-115 cursor-pointer shadow-sm"
+                          >
+                            <img src={b.src} alt={b.title} className="w-full h-full object-contain" />
+                          </div>
+                        ))}
+                      </div>
+                      <span className="text-[11px] font-bold text-[var(--color-primary)]">
+                        5 Unlocked
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+            </motion.div>
+
+          </div>
+        </section>
+
+        {/* Platform Core Capabilities Section */}
+        <section className="py-16 bg-[var(--color-surface)]/30 border-y border-[var(--color-border)]/50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center max-w-3xl mx-auto space-y-4 mb-12">
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-[var(--color-text-primary)] tracking-tight">
+                Everything You Need to Excel
+              </h2>
+              <p className="text-base text-[var(--color-text-muted)] leading-relaxed">
+                Empowering students and administrators with intuitive tools built for campus activities.
               </p>
             </div>
 
-            {/* Quick Links */}
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {coreFeatures.map((feat, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 15 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1 }}
+                  className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-2xl p-6 shadow-sm hover:shadow-md hover:border-[var(--color-primary)]/50 transition-all flex flex-col justify-between"
+                >
+                  <div className="space-y-4">
+                    <div className="w-12 h-12 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border-light)] flex items-center justify-center">
+                      {feat.icon}
+                    </div>
+                    <h3 className="font-extrabold text-lg text-[var(--color-text-primary)]">{feat.title}</h3>
+                    <p className="text-xs sm:text-sm text-[var(--color-text-muted)] leading-relaxed">{feat.description}</p>
+                  </div>
+                  <div className="pt-4 mt-4 border-t border-[var(--color-border-light)] text-xs font-bold text-[var(--color-primary)] flex items-center gap-1">
+                    <span>Learn More</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Streamlined Call to Action Banner */}
+        <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="rounded-3xl bg-gradient-to-r from-[#134467] via-[#1a6293] to-[var(--color-primary)] text-white p-8 sm:p-12 text-center shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-2xl pointer-events-none" />
+            <div className="relative z-10 max-w-2xl mx-auto space-y-6">
+              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight">
+                Ready to Join PASC CCA Activities?
+              </h2>
+              <p className="text-sm sm:text-base text-white/85 leading-relaxed">
+                Log in with your college credentials to discover upcoming sessions, scan attendance QR codes, and level up your credit rank today.
+              </p>
+              <div className="flex flex-col sm:flex-row justify-center items-center gap-3 pt-2">
+                <Link
+                  href={isLoggedIn ? (userRole === 'admin' ? '/admin/dashboard' : '/student/dashboard') : '/auth/login'}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-white text-[#134467] rounded-xl font-extrabold text-base hover:bg-slate-100 shadow-lg hover:shadow-xl transition-all"
+                >
+                  <span>{isLoggedIn ? "Go to Dashboard" : "Sign In Now"}</span>
+                  <ChevronRight className="w-5 h-5" />
+                </Link>
+                <Link
+                  href="/student/events"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-xl font-bold text-base transition-all"
+                >
+                  <Calendar className="w-5 h-5" />
+                  <span>Browse Events</span>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      {/* UI Theme Matched Footer */}
+      <footer className="bg-[var(--color-card)] border-t border-[var(--color-border)] py-16 text-[var(--color-text-primary)] transition-colors">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+            {/* Brand */}
+            <div className="col-span-2 md:col-span-1 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-[var(--color-primary)]/10 border border-[var(--color-primary)]/20 rounded-xl flex items-center justify-center">
+                  <GraduationCap className="w-5 h-5 text-[var(--color-primary)]" />
+                </div>
+                <span className="text-xl font-extrabold text-[var(--color-text-primary)]">PASC CCA</span>
+              </div>
+              <p className="text-[var(--color-text-muted)] text-xs sm:text-sm leading-relaxed">
+                Empowering students to excel in co-curricular activities through tech-driven tracking and rewards.
+              </p>
+            </div>
+
+            {/* Platform */}
             <div>
-              <h4 className="font-semibold mb-4 text-[#ECEFF1]">Platform</h4>
-              <ul className="space-y-2 text-[#CCCCCC] text-sm">
-                <li><Link href="/auth/login" className="hover:text-white transition-colors">Sign In</Link></li>
-                {/* Register Link Removed for Closed Review */}
-                <li><Link href="#" className="hover:text-white transition-colors">Events</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Leaderboard</Link></li>
+              <h4 className="font-extrabold mb-4 text-[var(--color-text-primary)] text-xs uppercase tracking-wider">Platform</h4>
+              <ul className="space-y-2.5 text-xs sm:text-sm font-medium text-[var(--color-text-muted)]">
+                <li><Link href="/auth/login" className="hover:text-[var(--color-primary)] transition-colors">Sign In</Link></li>
+                <li><Link href="/student/events" className="hover:text-[var(--color-primary)] transition-colors">Events</Link></li>
+                <li><Link href="/student/leaderboard" className="hover:text-[var(--color-primary)] transition-colors">Leaderboard</Link></li>
               </ul>
             </div>
 
             {/* Resources */}
             <div>
-              <h4 className="font-semibold mb-4 text-[#ECEFF1]">Resources</h4>
-              <ul className="space-y-2 text-[#CCCCCC] text-sm">
-                <li><Link href="#" className="hover:text-white transition-colors">Help Center</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Guidelines</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">FAQs</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Contact</Link></li>
+              <h4 className="font-extrabold mb-4 text-[var(--color-text-primary)] text-xs uppercase tracking-wider">Resources</h4>
+              <ul className="space-y-2.5 text-xs sm:text-sm font-medium text-[var(--color-text-muted)]">
+                <li><Link href="#" className="hover:text-[var(--color-primary)] transition-colors">Help Center</Link></li>
+                <li><Link href="#" className="hover:text-[var(--color-primary)] transition-colors">Guidelines</Link></li>
+                <li><Link href="#" className="hover:text-[var(--color-primary)] transition-colors">FAQs</Link></li>
+                <li><Link href="#" className="hover:text-[var(--color-primary)] transition-colors">Contact</Link></li>
               </ul>
             </div>
 
             {/* Connect */}
             <div>
-              <h4 className="font-semibold mb-4 text-[#ECEFF1]">Connect</h4>
-              <div className="flex gap-3">
-                <a href="#" className="w-10 h-10 bg-[#37474F] hover:bg-[#1DA1F2] rounded-lg flex items-center justify-center transition-colors">
-                  <Twitter className="w-5 h-5" />
+              <h4 className="font-extrabold mb-4 text-[var(--color-text-primary)] text-xs uppercase tracking-wider">Connect</h4>
+              <div className="flex gap-2.5">
+                <a href="#" aria-label="Twitter" className="w-10 h-10 bg-[var(--color-surface)] border border-[var(--color-border-light)] hover:bg-[var(--color-primary)] hover:text-white hover:border-[var(--color-primary)] rounded-xl flex items-center justify-center text-[var(--color-text-primary)] transition-all">
+                  <Twitter className="w-4 h-4" />
                 </a>
-                <a href="#" className="w-10 h-10 bg-[#37474F] hover:bg-[#E1306C] rounded-lg flex items-center justify-center transition-colors">
-                  <Instagram className="w-5 h-5" />
+                <a href="#" aria-label="Instagram" className="w-10 h-10 bg-[var(--color-surface)] border border-[var(--color-border-light)] hover:bg-[var(--color-primary)] hover:text-white hover:border-[var(--color-primary)] rounded-xl flex items-center justify-center text-[var(--color-text-primary)] transition-all">
+                  <Instagram className="w-4 h-4" />
                 </a>
-                <a href="#" className="w-10 h-10 bg-[#37474F] hover:bg-[#24292e] rounded-lg flex items-center justify-center transition-colors">
-                  <Github className="w-5 h-5" />
+                <a href="#" aria-label="Github" className="w-10 h-10 bg-[var(--color-surface)] border border-[var(--color-border-light)] hover:bg-[var(--color-primary)] hover:text-white hover:border-[var(--color-primary)] rounded-xl flex items-center justify-center text-[var(--color-text-primary)] transition-all">
+                  <Github className="w-4 h-4" />
                 </a>
-                <a href="#" className="w-10 h-10 bg-[#37474F] hover:bg-[#2BA6DF] rounded-lg flex items-center justify-center transition-colors">
-                  <Mail className="w-5 h-5" />
+                <a href="#" aria-label="Email" className="w-10 h-10 bg-[var(--color-surface)] border border-[var(--color-border-light)] hover:bg-[var(--color-primary)] hover:text-white hover:border-[var(--color-primary)] rounded-xl flex items-center justify-center text-[var(--color-text-primary)] transition-all">
+                  <Mail className="w-4 h-4" />
                 </a>
               </div>
             </div>
           </div>
 
           {/* Bottom Bar */}
-          <div className="pt-8 border-t border-[#37474F] flex flex-col sm:flex-row justify-between items-center gap-4">
-            <p className="text-[#CCCCCC] text-sm">
-              © 2025 PASC CCA Platform. All rights reserved.
+          <div className="pt-8 border-t border-[var(--color-border)] flex flex-col sm:flex-row justify-between items-center gap-4 text-xs sm:text-sm text-[var(--color-text-muted)]">
+            <p className="font-medium">
+              © {new Date().getFullYear()} PASC CCA Platform. All rights reserved.
             </p>
-            <div className="flex gap-6 text-sm text-[var(--color-text-muted)]">
-              <Link href="#" className="hover:text-white transition-colors">Privacy Policy</Link>
-              <Link href="#" className="hover:text-white transition-colors">Terms of Service</Link>
+            <div className="flex gap-6 font-medium">
+              <Link href="#" className="hover:text-[var(--color-primary)] transition-colors">Privacy Policy</Link>
+              <Link href="#" className="hover:text-[var(--color-primary)] transition-colors">Terms of Service</Link>
             </div>
           </div>
         </div>
