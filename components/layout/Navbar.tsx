@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
-import { Sun, Moon, User, LayoutDashboard, Calendar, Trophy, Bell, Menu, X, LogIn, UserPlus, Megaphone } from "lucide-react";
+import { Sun, Moon, User, LayoutDashboard, Calendar, Trophy, Bell, Menu, X, LogIn, Megaphone } from "lucide-react";
 import ThemeSwitcher from "./ThemeSwitcher";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
@@ -11,7 +11,7 @@ import { useAuthStore } from "@/lib/store";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { apiUrl } from "@/lib/utils";
 
-const Navbar = () => {
+const Navbar = ({ adminSecretRoute = "" }: { adminSecretRoute?: string }) => {
   const router = useRouter();
   const pathname = usePathname();
   const role = useAuthStore((state) => state.role);
@@ -41,7 +41,9 @@ const Navbar = () => {
 
   // Check if we're on the landing page or auth pages
   const isLandingPage = pathname === "/";
-  const isAuthPage = pathname.startsWith("/auth");
+  const isAuthPage =
+    pathname.startsWith("/auth") ||
+    (!!adminSecretRoute && (pathname === `/${adminSecretRoute}` || pathname.startsWith(`/${adminSecretRoute}/`)));
 
   const clearAuthStorageAndCookies = () => {
     clearAuth();
@@ -96,23 +98,6 @@ const Navbar = () => {
           <Image src="/logo.png" width={120} height={80} alt="logo" priority />
         </Link>
         <div className="flex items-center gap-4 pointer-events-auto">
-          {pathname === "/auth/login" ? (
-            <Link
-              href="/auth/signup"
-              className="flex items-center gap-2 px-4 py-2.5 bg-[var(--color-button-primary)] text-white rounded-xl font-semibold hover:bg-[var(--color-button-primary-hover)] hover:shadow-lg hover:-translate-y-0.5 transition-all text-sm"
-            >
-              <UserPlus className="w-4 h-4" />
-              <span className="hidden sm:inline">Sign Up</span>
-            </Link>
-          ) : (
-            <Link
-              href="/auth/login"
-              className="flex items-center gap-2 px-4 py-2.5 bg-[var(--color-button-primary)] text-white rounded-xl font-semibold hover:bg-[var(--color-button-primary-hover)] hover:shadow-lg hover:-translate-y-0.5 transition-all text-sm"
-            >
-              <LogIn className="w-4 h-4" />
-              <span className="hidden sm:inline">Login</span>
-            </Link>
-          )}
           <div className="pointer-events-auto backdrop-blur-md rounded-full bg-slate-50/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-center">
             <ThemeSwitcher />
           </div>

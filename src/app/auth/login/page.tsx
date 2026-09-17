@@ -171,7 +171,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { RoleToggle } from "@/components/auth/RoleToggle";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useAuthStore } from "@/lib/store";
 import { authAPI } from "@/lib/api";
@@ -203,7 +202,9 @@ const SLIDES = [
 export default function Login() {
   const router = useRouter();
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [role, setRole] = useState<string>("student");
+  // Role is always student on the public login page.
+  // Admin must use the private secret route.
+  const role = "student";
 
   // Auto-slide effect
   useEffect(() => {
@@ -221,13 +222,11 @@ export default function Login() {
   const { setAuth } = useAuthStore();
   const { success } = useToast();
 
-  // Redirect already-authenticated users away from the login page
+  // Redirect already-authenticated students away from the login page
   useEffect(() => {
     const token = localStorage.getItem('token');
     const storedRole = localStorage.getItem('role');
-    if (token && storedRole === 'admin') {
-      router.replace('/admin/dashboard');
-    } else if (token && storedRole === 'student') {
+    if (token && storedRole === 'student') {
       router.replace('/student/events');
     } else {
       setCheckingAuth(false);
@@ -242,9 +241,6 @@ export default function Login() {
     );
   }
 
-  const handleRoleChange = (selectedRole: string): void => {
-    setRole(selectedRole);
-  };
 
   const togglePasswordVisibility = (): void => {
     setShowPassword(!showPassword);
@@ -258,10 +254,7 @@ export default function Login() {
     setError(null);
 
     try {
-      const res =
-        role === "admin"
-          ? await authAPI.adminLogin(email, password)
-          : await authAPI.userLogin(email, password);
+      const res = await authAPI.userLogin(email, password);
 
       const data = res.data;
       const authResponse = data.data;
@@ -272,16 +265,15 @@ export default function Login() {
       }
 
       setAuth({
-        user: role === "student" ? authResponse.user : undefined,
-        admin: role === "admin" ? authResponse.admin : undefined,
-        role: role as "student" | "admin",
+        user: authResponse.user,
+        admin: undefined,
+        role: "student",
       });
 
       if (authResponse.token) {
         localStorage.setItem("token", authResponse.token);
-        localStorage.setItem("role", role);
-        const userId =
-          role === "student" ? authResponse.user?.id : authResponse.admin?.id;
+        localStorage.setItem("role", "student");
+        const userId = authResponse.user?.id;
         if (userId) {
           localStorage.setItem("userId", userId.toString());
         }
@@ -303,9 +295,9 @@ export default function Login() {
           "role=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;";
       }
 
-      const name = role === 'student' ? authResponse.user?.name : authResponse.admin?.name;
+      const name = authResponse.user?.name;
       success('Welcome back!', name ? `Hello, ${name}!` : 'Logged in successfully.');
-      router.push(role === "admin" ? "/admin/dashboard" : "/student/events");
+      router.push("/student/events");
     } catch (err: any) {
       const res = err.response;
       if (!res) {
@@ -372,8 +364,6 @@ export default function Login() {
                 Sign in to continue your journey and unlock new achievements.
               </p>
             </div>
-
-            <RoleToggle onRoleChange={handleRoleChange} />
 
             <form className="space-y-5" onSubmit={handleLogin}>
               <div className="space-y-1.5">
