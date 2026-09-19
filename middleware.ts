@@ -4,8 +4,9 @@ import type { NextRequest } from 'next/server';
 const PUBLIC_AUTH_PATHS = ['/auth/login', '/auth/reset-password', '/auth/change-password'];
 const ROOT_PATH = '/';
 
-// The secret admin route from env — must match [adminSecret] segment
-const ADMIN_SECRET = process.env.ADMIN_SECRET_ROUTE;
+function getAdminSecret(): string | undefined {
+  return process.env.ADMIN_SECRET_ROUTE?.trim().replace(/^["']|["']$/g, '');
+}
 
 function isPathStartingWith(pathname: string, base: string) {
   return pathname === base || pathname.startsWith(`${base}/`);
@@ -13,6 +14,7 @@ function isPathStartingWith(pathname: string, base: string) {
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+  const ADMIN_SECRET = getAdminSecret();
 
   const token = req.cookies.get('token')?.value;
   const role = req.cookies.get('role')?.value as 'student' | 'admin' | undefined;
@@ -83,6 +85,7 @@ export const config = {
     '/student/:path*',
     '/auth/:path*',
     '/',
-    '/:adminSecret',          // catches the secret route segment at root level
+    '/:adminSecret*',
   ],
 };
+

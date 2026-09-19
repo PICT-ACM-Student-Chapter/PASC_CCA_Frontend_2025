@@ -4,7 +4,7 @@ import React from "react";
 import Navbar from "./Navbar";
 
 const NavbarWrapper: React.FC = () => {
-  const adminSecretRoute = process.env.ADMIN_SECRET_ROUTE ?? "";
+  const adminSecretRoute = (process.env.ADMIN_SECRET_ROUTE ?? "").trim().replace(/^["']|["']$/g, '');
   return <Navbar adminSecretRoute={adminSecretRoute} />;
 };
 
